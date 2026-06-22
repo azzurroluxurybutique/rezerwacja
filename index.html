@@ -1,0 +1,2167 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Azzurro Luxury Boutique - Portal Gościa</title>
+  <!-- Google Fonts: Cormorant Garamond i DM Sans -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Zmienne projektowe - System luksusowego designu Azzurro */
+    :root {
+      --sand: #f7f3ed;
+      --sand2: #ede7dc;
+      --ocean: #1a4a5c;
+      --ocean2: #2a6a80;
+      --wave: #4a9ab5;
+      --foam: #d8eef5;
+      --gold: #c9a84c;
+      --text: #1a2a30;
+      --muted: #6a8a98;
+      --white: #ffffff;
+      --success: #2e7d32;
+      --success-bg: #e8f5e9;
+      --error: #c0392b;
+      --error-bg: #fdecea;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--sand);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    /* Wygląd aplikacji - Premium mobile-first i wyśrodkowany kontener na desktopie */
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      min-height: 100vh;
+      background: var(--sand);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 30px rgba(26, 74, 92, 0.05);
+      position: relative;
+    }
+
+    @media (min-width: 500px) {
+      body {
+        padding: 40px 20px;
+        background: radial-gradient(circle at top right, var(--foam), var(--sand));
+      }
+      .app-container {
+        min-height: unset;
+        height: 850px;
+        border-radius: 30px;
+        overflow-y: auto;
+        border: 1px solid var(--sand2);
+        box-shadow: 0 20px 40px rgba(26, 74, 92, 0.12);
+      }
+      /* Dostosowanie paska przewijania */
+      .app-container::-webkit-scrollbar {
+        width: 6px;
+      }
+      .app-container::-webkit-scrollbar-track {
+        background: var(--sand);
+        border-radius: 30px;
+      }
+      .app-container::-webkit-scrollbar-thumb {
+        background: var(--sand2);
+        border-radius: 30px;
+      }
+    }
+
+    /* ──── PRZEŁĄCZNIK JĘZYKA ──── */
+    .lang-switcher {
+      display: flex;
+      justify-content: flex-end;
+      padding: 12px 20px 0;
+      gap: 8px;
+    }
+
+    .lang-btn {
+      background: transparent;
+      border: 1.5px solid var(--sand2);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .lang-btn.active {
+      background: var(--ocean);
+      border-color: var(--ocean);
+      color: var(--white);
+    }
+
+    .lang-btn:hover:not(.active) {
+      border-color: var(--ocean);
+      color: var(--ocean);
+    }
+
+    /* ──── PANEL LOGOWANIA ──── */
+    .login-screen {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 30px 30px 40px;
+      flex-grow: 1;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .brand-section {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .brand-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 38px;
+      font-weight: 300;
+      color: var(--ocean);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .brand-subtitle {
+      font-size: 12px;
+      color: var(--gold);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-top: 8px;
+      font-weight: 500;
+    }
+
+    .login-card {
+      background: var(--white);
+      border-radius: 24px;
+      padding: 30px 24px;
+      border: 1px solid var(--sand2);
+      box-shadow: 0 10px 30px rgba(26, 74, 92, 0.04);
+    }
+
+    .login-intro {
+      font-size: 14px;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    /* Formularze i pola tekstowe */
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+
+    .input-control {
+      width: 100%;
+      background: var(--sand);
+      border: 1px solid var(--sand2);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-family: inherit;
+      font-size: 15px;
+      color: var(--text);
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .input-control:focus {
+      border-color: var(--ocean);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(26, 74, 92, 0.08);
+    }
+
+    .input-hint {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    /* Zaokrąglone przyciski w stylu Apple */
+    .btn-apple {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      background: var(--ocean);
+      color: var(--white);
+      border: none;
+      border-radius: 50px;
+      padding: 16px 24px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 15px rgba(26, 74, 92, 0.15);
+      gap: 10px;
+    }
+
+    .btn-apple:hover {
+      background: var(--ocean2);
+      transform: translateY(-1px);
+    }
+
+    .btn-apple:active {
+      transform: scale(0.98);
+      box-shadow: 0 2px 6px rgba(26, 74, 92, 0.1);
+    }
+
+    .btn-apple:disabled {
+      background: var(--sand2);
+      color: var(--muted);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2.5px solid var(--ocean);
+      color: var(--ocean);
+      box-shadow: none;
+    }
+
+    .btn-outline:hover {
+      background: var(--foam);
+      color: var(--ocean);
+      transform: translateY(-1px);
+    }
+
+    /* ──── EKRAN GŁÓWNY (DASHBOARD) ──── */
+    .dash-screen {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      animation: fadeIn 0.4s ease;
+    }
+
+    /* Nagłówek z powitaniem */
+    .dash-header {
+      background: var(--ocean);
+      color: var(--white);
+      padding: 30px 24px 35px;
+      border-bottom-left-radius: 28px;
+      border-bottom-right-radius: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dash-header::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 250px;
+      height: 250px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .dash-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .dash-logo-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      letter-spacing: 0.25em;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+
+    .logout-link {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 12px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .logout-link:hover {
+      color: var(--white);
+    }
+
+    .dash-welcome {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 30px;
+      font-weight: 300;
+      line-height: 1.2;
+    }
+
+    .dash-subtitle {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-top: 6px;
+      font-weight: 300;
+    }
+
+    .dash-dates-badge {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 8px 14px;
+      border-radius: 12px;
+      margin-top: 15px;
+      font-size: 12px;
+      font-weight: 500;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      gap: 6px;
+    }
+
+    /* Stepper - postęp procesu */
+    .stepper-container {
+      padding: 20px;
+      background: var(--white);
+      border-radius: 20px;
+      margin: -15px 20px 20px;
+      box-shadow: 0 4px 20px rgba(26, 74, 92, 0.03);
+      border: 1px solid var(--sand2);
+      z-index: 10;
+    }
+
+    .stepper-steps {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .stepper-line {
+      position: absolute;
+      top: 15px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--sand2);
+      z-index: 1;
+    }
+
+    .stepper-progress-line {
+      position: absolute;
+      top: 15px;
+      left: 0;
+      height: 2px;
+      background: var(--gold);
+      z-index: 2;
+      transition: width 0.4s ease;
+      width: 0%;
+    }
+
+    .stepper-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 3;
+      width: 25%;
+    }
+
+    .step-circle {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--white);
+      border: 2px solid var(--sand2);
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      transition: all 0.3s ease;
+    }
+
+    .stepper-step.active .step-circle {
+      border-color: var(--ocean);
+      background: var(--ocean);
+      color: var(--white);
+      box-shadow: 0 0 10px rgba(26, 74, 92, 0.25);
+    }
+
+    .stepper-step.completed .step-circle {
+      border-color: var(--gold);
+      background: var(--gold);
+      color: var(--white);
+    }
+
+    .step-label {
+      font-size: 9px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-top: 6px;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stepper-step.active .step-label {
+      color: var(--ocean);
+      font-weight: 700;
+    }
+
+    .stepper-step.completed .step-label {
+      color: var(--gold);
+    }
+
+    /* Karta (Podstawowy element UI) */
+    .card {
+      background: var(--white);
+      border-radius: 24px;
+      padding: 22px;
+      margin: 0 20px 20px;
+      border: 1px solid var(--sand2);
+      box-shadow: 0 4px 15px rgba(26, 74, 92, 0.015);
+      transition: all 0.3s ease;
+    }
+
+    .card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 21px;
+      font-weight: 600;
+      color: var(--ocean);
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title svg {
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+
+    /* Szczegóły płatności */
+    .payment-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--sand);
+    }
+
+    .payment-row:last-child {
+      border-bottom: none;
+    }
+
+    .payment-label {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .payment-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .payment-deadline {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .payment-value-status {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .payment-amount {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ocean);
+    }
+
+    .status-badge {
+      font-size: 9px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-weight: 600;
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .status-badge.paid {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    .status-badge.unpaid {
+      background: var(--error-bg);
+      color: var(--error);
+    }
+
+    .payment-progress-bar-container {
+      margin-top: 15px;
+      background: var(--sand);
+      height: 6px;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .payment-progress-bar-fill {
+      background: var(--gold);
+      height: 100%;
+      width: 0%;
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .payment-progress-text {
+      font-size: 11px;
+      color: var(--muted);
+      text-align: right;
+      margin-top: 6px;
+    }
+
+    /* Stan zameldowania i dynamiczny formularz */
+    .checkin-info-box {
+      border-radius: 16px;
+      padding: 16px;
+      background: var(--sand);
+      border: 1px solid var(--sand2);
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 15px;
+    }
+
+    .checkin-info-box.warning-box {
+      background: var(--error-bg);
+      border: 1px solid rgba(192, 57, 43, 0.2);
+    }
+
+    .guest-form-card {
+      border: 1px solid var(--sand2);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 15px;
+      background: var(--sand);
+    }
+
+    .guest-form-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--ocean);
+      margin-bottom: 12px;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--sand2);
+      padding-bottom: 4px;
+    }
+
+    /* Kody dostępowe */
+    .codes-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .apt-code-card {
+      border: 1.5px solid var(--sand2);
+      border-radius: 18px;
+      padding: 18px;
+      background: var(--white);
+      transition: border-color 0.3s;
+    }
+
+    .apt-code-card.active-card {
+      border-color: var(--gold);
+      box-shadow: 0 4px 15px rgba(201, 168, 76, 0.1);
+    }
+
+    .apt-code-header {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ocean);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1px solid var(--sand);
+      padding-bottom: 6px;
+    }
+
+    .code-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      padding: 6px 0;
+    }
+
+    .code-label {
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .code-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ocean);
+      letter-spacing: 0.05em;
+      background: var(--sand);
+      padding: 4px 10px;
+      border-radius: 8px;
+      border: 1px dashed var(--gold);
+      font-family: monospace;
+    }
+
+    .code-instruction {
+      font-size: 12px;
+      color: var(--text);
+      line-height: 1.5;
+      margin-top: 10px;
+      background: var(--foam);
+      padding: 12px;
+      border-radius: 10px;
+      border-left: 3px solid var(--wave);
+    }
+
+    /* Wymeldowanie */
+    .checkout-upload-box {
+      border: 2px dashed var(--sand2);
+      border-radius: 16px;
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      background: var(--sand);
+      transition: all 0.2s;
+      margin-bottom: 15px;
+    }
+
+    .checkout-upload-box:hover {
+      border-color: var(--wave);
+      background: var(--foam);
+    }
+
+    .checkout-upload-icon {
+      margin-bottom: 10px;
+      color: var(--wave);
+    }
+
+    .checkout-upload-text {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ocean);
+    }
+
+    .checkout-upload-subtext {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .selected-file-info {
+      font-size: 12px;
+      color: var(--success);
+      margin-top: 8px;
+      font-weight: 500;
+      display: none;
+      background: var(--success-bg);
+      padding: 8px;
+      border-radius: 8px;
+    }
+
+    /* ──── OGÓLNE KOMPONENTY ──── */
+    .success-alert {
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid rgba(46, 125, 50, 0.2);
+      border-radius: 16px;
+      padding: 16px;
+      font-size: 14px;
+      line-height: 1.5;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .error-alert {
+      background: var(--error-bg);
+      color: var(--error);
+      border: 1px solid rgba(192, 57, 43, 0.2);
+      border-radius: 16px;
+      padding: 16px;
+      font-size: 14px;
+      line-height: 1.5;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(26, 74, 92, 0.95);
+      z-index: 100;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 30px;
+      color: var(--white);
+      text-align: center;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    .spinner-small {
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: var(--white);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Animacje */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .card-locked {
+      opacity: 0.55;
+      pointer-events: none;
+      position: relative;
+    }
+
+    .card-locked::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(247, 243, 237, 0.1);
+      z-index: 2;
+      border-radius: 24px;
+    }
+
+    /* Styl dla Modala PDF z instrukcją apartamentu */
+    .pdf-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(26, 74, 92, 0.95);
+      z-index: 3000;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .pdf-modal-content {
+      width: 100%;
+      max-width: 900px;
+      height: 90%;
+      background: var(--white);
+      border-radius: 24px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+
+    .pdf-modal-header {
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--sand2);
+      background: var(--sand);
+    }
+
+    .pdf-modal-body {
+      flex-grow: 1;
+      width: 100%;
+      height: calc(100% - 60px);
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .pdf-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- ──── PRZEŁĄCZNIK JĘZYKA ──── -->
+    <div id="lang-switcher-top" class="lang-switcher">
+      <button class="lang-btn active" onclick="setLang('pl')">🇵🇱 PL</button>
+      <button class="lang-btn" onclick="setLang('en')">🇬🇧 EN</button>
+    </div>
+
+    <!-- ──── EKRAN LOGOWANIA ──── -->
+    <div id="login-section" class="login-screen" style="padding-top: 10px;">
+      <div class="brand-section">
+        <h1 class="brand-title">Azzurro</h1>
+        <p class="brand-subtitle">Luxury Boutique</p>
+      </div>
+
+      <div class="login-card">
+        <p class="login-intro" id="txt-login-intro"></p>
+
+        <div id="login-error-box" class="error-alert"></div>
+
+        <div class="input-group">
+          <label class="input-label" id="lbl-email" for="login-email"></label>
+          <input type="email" id="login-email" class="input-control" required>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" id="lbl-password" for="login-password"></label>
+          <input type="password" id="login-password" class="input-control" required>
+          <div class="input-hint" id="txt-password-hint"></div>
+        </div>
+
+        <button id="btn-login" class="btn-apple" onclick="handleLogin()">
+          <span id="txt-btn-login"></span>
+          <div id="login-spinner" class="spinner-small"></div>
+        </button>
+      </div>
+    </div>
+
+    <!-- ──── EKRAN DASHBOARDU ──── -->
+    <div id="dash-section" class="dash-screen hidden">
+      <!-- Nagłówek powitalny -->
+      <div class="dash-header">
+        <div class="dash-top">
+          <span class="dash-logo-text">Azzurro</span>
+          <a href="#" class="logout-link" id="txt-logout" onclick="handleLogout()"></a>
+        </div>
+        <h2 id="guest-welcome" class="dash-welcome"></h2>
+        <p class="dash-subtitle" id="txt-dash-subtitle"></p>
+        <div class="dash-dates-badge">
+          <!-- Ikona kalendarza -->
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          <span id="stay-dates">... - ...</span>
+        </div>
+      </div>
+
+      <!-- Stepper / Kroki procesu -->
+      <div class="stepper-container">
+        <div class="stepper-steps">
+          <div class="stepper-line"></div>
+          <div id="stepper-bar" class="stepper-progress-line"></div>
+
+          <div id="step-node-payment" class="stepper-step">
+            <div class="step-circle">1</div>
+            <div class="step-label" id="step-lbl-payment"></div>
+          </div>
+          <div id="step-node-checkin" class="stepper-step">
+            <div class="step-circle">2</div>
+            <div class="step-label" id="step-lbl-checkin"></div>
+          </div>
+          <div id="step-node-codes" class="stepper-step">
+            <div class="step-circle">3</div>
+            <div class="step-label" id="step-lbl-codes"></div>
+          </div>
+          <div id="step-node-checkout" class="stepper-step">
+            <div class="step-circle">4</div>
+            <div class="step-label" id="step-lbl-checkout"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Komunikaty o błędach / ostrzeżeniach globalnych -->
+      <div style="padding: 0 20px;">
+        <div id="dash-error-box" class="error-alert"></div>
+      </div>
+
+      <!-- KARTA PŁATNOŚCI -->
+      <div class="card" id="card-payments">
+        <div class="card-title">
+          <!-- Karta płatności ikona -->
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+            <line x1="1" y1="10" x2="23" y2="10"/>
+          </svg>
+          <span id="txt-payments-title"></span>
+        </div>
+
+        <div class="payment-row">
+          <div class="payment-label">
+            <span class="payment-name" id="txt-deposit-name"></span>
+            <span class="payment-deadline" id="txt-deposit-desc"></span>
+          </div>
+          <div class="payment-value-status">
+            <span class="payment-amount" id="val-deposit-amount">0.00 €</span>
+            <span id="badge-deposit-status" class="status-badge">...</span>
+          </div>
+        </div>
+
+        <div class="payment-row">
+          <div class="payment-label">
+            <span class="payment-name" id="txt-rest-name"></span>
+            <span class="payment-deadline" id="val-payment-deadline"></span>
+          </div>
+          <div class="payment-value-status">
+            <span class="payment-amount" id="val-rest-amount">0.00 €</span>
+            <span id="badge-rest-status" class="status-badge">...</span>
+          </div>
+        </div>
+
+        <div class="payment-row">
+          <div class="payment-label">
+            <span class="payment-name" id="txt-bond-name"></span>
+            <span class="payment-deadline" id="txt-bond-desc"></span>
+          </div>
+          <div class="payment-value-status">
+            <span class="payment-amount" id="val-bond-amount">0.00 €</span>
+            <span id="badge-bond-status" class="status-badge">...</span>
+          </div>
+        </div>
+
+        <div class="payment-progress-bar-container">
+          <div id="payment-bar" class="payment-progress-bar-fill"></div>
+        </div>
+        <div id="payment-progress-text" class="payment-progress-text"></div>
+      </div>
+
+      <!-- KARTA 1: CHECK-IN -->
+      <div class="card" id="card-checkin">
+        <div class="card-title">
+          <!-- Ikona użytkownika -->
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          <span id="txt-checkin-card-title"></span>
+        </div>
+
+        <!-- Stan przed 48h -->
+        <div id="checkin-before-48h" class="checkin-info-box hidden">
+          <p style="font-weight: 500; color: var(--ocean);" id="txt-checkin-not-yet-title"></p>
+          <p style="margin-top: 6px; font-size: 12px; color: var(--muted);">
+            <span id="txt-checkin-available-from"></span><br>
+            <strong id="checkin-open-time" style="color: var(--text);">...</strong>
+          </p>
+        </div>
+
+        <!-- Stan: 48h minęło, ale płatność nieuregulowana -->
+        <div id="checkin-payment-required" class="checkin-info-box warning-box hidden">
+          <p style="font-weight: 500; color: var(--error);" id="txt-checkin-payment-required-title"></p>
+          <p style="margin-top: 6px; font-size: 12px; color: var(--text); line-height: 1.4;" id="txt-checkin-payment-required-desc"></p>
+        </div>
+
+        <!-- Zrobione zameldowanie -->
+        <div id="checkin-completed-alert" class="success-alert hidden">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          <div>
+            <strong id="txt-checkin-done-title"></strong><br>
+            <span id="txt-checkin-done-desc"></span>
+          </div>
+        </div>
+
+        <!-- Formularz w toku -->
+        <div id="checkin-form-container" class="hidden">
+          <p style="font-size: 13px; color: var(--muted); margin-bottom: 15px; line-height: 1.4;">
+            <span id="txt-checkin-form-intro"></span> <strong id="checkin-people-count" style="color: var(--ocean);">1</strong>.
+          </p>
+
+          <form id="checkin-form" onsubmit="event.preventDefault(); submitCheckInForm();">
+            <!-- Dynamicznie generowane pola gości -->
+            <div id="dynamic-guests-fields"></div>
+
+            <button type="submit" id="btn-submit-checkin" class="btn-apple">
+              <span id="txt-btn-checkin"></span>
+              <div id="checkin-spinner" class="spinner-small"></div>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- KARTA 2: KODY DOSTĘPU -->
+      <div class="card card-locked" id="card-codes">
+        <div class="card-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+          </svg>
+          <span id="txt-codes-card-title"></span>
+        </div>
+
+        <!-- Sekcja z przyciskiem PDF (zawsze widoczna po zameldowaniu) -->
+        <div id="codes-pdf-section" class="hidden">
+          <button id="btn-open-pdf" class="btn-apple btn-outline" style="margin-bottom: 15px;" onclick="handlePdfOpenClick()">
+            <!-- Ikona pliku -->
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+            <span id="txt-btn-pdf"></span>
+          </button>
+        </div>
+
+        <!-- Opis przed pierwszym kliknięciem PDF -->
+        <div id="codes-pre-pdf" class="checkin-info-box hidden">
+          <p style="font-weight: 500; color: var(--ocean);" id="txt-codes-pre-pdf-title"></p>
+          <p style="margin-top: 6px; font-size: 12px; color: var(--muted); line-height: 1.4;" id="txt-codes-pre-pdf-desc"></p>
+        </div>
+
+        <!-- Wyświetlenie kodów -->
+        <div id="codes-display-container" class="codes-container hidden">
+          <div class="success-alert" style="margin-bottom: 15px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <div id="txt-codes-unlocked"></div>
+          </div>
+
+          <div id="rooms-codes-list"></div>
+        </div>
+      </div>
+
+      <!-- KARTA 3: CHECK-OUT -->
+      <div class="card card-locked" id="card-checkout">
+        <div class="card-title">
+          <!-- Ikona wideo / wyjścia -->
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 7l-7 5 7 5V7z"/>
+            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+          </svg>
+          <span id="txt-checkout-card-title"></span>
+        </div>
+
+        <!-- Zakończone wymeldowanie -->
+        <div id="checkout-completed-alert" class="success-alert hidden">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          <div>
+            <strong id="txt-checkout-done-title"></strong><br>
+            <span id="txt-checkout-done-desc"></span>
+          </div>
+        </div>
+
+        <!-- Upload video i formularz wymeldowania -->
+        <div id="checkout-form-container">
+          <p style="font-size: 13px; color: var(--muted); margin-bottom: 15px; line-height: 1.5;" id="txt-checkout-intro"></p>
+
+          <div class="checkout-upload-box" onclick="triggerVideoFileInput()">
+            <div class="checkout-upload-icon">
+              <!-- Ikona chmury/uploadu -->
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <div class="checkout-upload-text" id="upload-box-text"></div>
+            <div class="checkout-upload-subtext" id="txt-upload-subtext"></div>
+            <div id="selected-file-name" class="selected-file-info"></div>
+          </div>
+
+          <input type="file" id="checkout-video-input" accept="video/*" style="display: none;" onchange="handleVideoFileSelection()">
+
+          <button id="btn-submit-checkout" class="btn-apple" disabled onclick="submitCheckOut()">
+            <span id="txt-btn-checkout"></span>
+            <div id="checkout-spinner" class="spinner-small"></div>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ──── OVERLAY DLA URUCHAMIANIA PROCESÓW (LOADING) ──── -->
+    <div id="loading-overlay" class="overlay">
+      <div class="spinner"></div>
+      <h3 id="txt-overlay-title" style="font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 300; margin-bottom: 10px;"></h3>
+      <p id="overlay-text" style="font-size: 14px; opacity: 0.8; line-height: 1.5;"></p>
+    </div>
+
+  </div>
+
+  <!-- Modal do otwierania instrukcji apartamentu PDF -->
+  <div id="pdf-modal" class="pdf-modal-overlay">
+    <div class="pdf-modal-content">
+      <div class="pdf-modal-header">
+        <h3 id="txt-pdf-modal-title" style="font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--ocean); font-weight: 600; margin: 0;"></h3>
+        <button class="btn-apple btn-outline" id="txt-pdf-close-btn" style="padding: 8px 16px; font-size: 13px; width: auto; box-shadow: none; border: 2px solid var(--ocean);" onclick="closePdfModal()"></button>
+      </div>
+      <div class="pdf-modal-body">
+        <iframe id="pdf-iframe" class="pdf-iframe" src="" allow="autoplay"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ──── URL-e PDF w dwóch wersjach językowych ────
+    var PDF_PL = "https://drive.google.com/file/d/16zMWG4Wet0PNFKMCP0k0XW-IDmxzHUfx/preview";
+    var PDF_EN = "https://drive.google.com/file/d/17ILnpee470cY7L9vXN7yrzhUN2jI1fhE/preview";
+
+    // ──── Kody pokoi ────
+    var ROOM_CODES_MAP = {
+      "1": {
+        door: "8587#",
+        box: "8530",
+        desc_pl: "Twój apartament to apartament nr 1. Znajdziesz tam klucze do drzwi na dole (w razie czego), do drzwi do mieszkania (po włożeniu i przekręceniu klucza należy drzwi lekko popchnąć/docisnąć).",
+        desc_en: "Your apartment is apartment no. 1. You will find keys to the entrance door downstairs (if needed) and to the apartment door (after inserting and turning the key, gently push/press the door)."
+      },
+      "2": {
+        door: "8587#",
+        box: "2025",
+        desc_pl: "Twój apartament to apartament nr 2. Znajdziesz tam klucze do drzwi na dole (w razie czego), do drzwi do mieszkania (po włożeniu i przekręceniu klucza należy drzwi lekko popchnąć/docisnąć).",
+        desc_en: "Your apartment is apartment no. 2. You will find keys to the entrance door downstairs (if needed) and to the apartment door (after inserting and turning the key, gently push/press the door)."
+      },
+      "3": {
+        door: "8587#",
+        box: "3138",
+        desc_pl: "Twój apartament to apartament nr 3. Znajdziesz tam klucze do drzwi na dole (w razie czego), do drzwi do mieszkania (po włożeniu i przekręceniu klucza należy drzwi lekko popchnąć/docisnąć).",
+        desc_en: "Your apartment is apartment no. 3. You will find keys to the entrance door downstairs (if needed) and to the apartment door (after inserting and turning the key, gently push/press the door)."
+      }
+    };
+
+    // ──── Tłumaczenia ────
+    var STRINGS = {
+      pl: {
+        loginIntro: "Zaloguj się adresem e-mail podanym podczas rezerwacji oraz swoim imieniem.",
+        lblEmail: "Adres E-mail",
+        emailPlaceholder: "np. jan.kowalski@gmail.com",
+        lblPassword: "Hasło",
+        passwordPlaceholder: "Twoje pierwsze imię (np. jan)",
+        passwordHint: "Wielkość znaków w haśle nie ma znaczenia.",
+        btnLogin: "Zaloguj się",
+        loginErrorEmpty: "Proszę uzupełnić wszystkie pola.",
+        loginErrorBad: "Nieprawidłowe dane logowania (spróbuj test@azzurro.pl / anna).",
+        loginErrorConn: "Błąd połączenia: ",
+        logout: "Wyloguj się",
+        dashSubtitle: "Cieszymy się, że jesteś naszym gościem.",
+        stepPayment: "Płatność",
+        stepCheckin: "Zameldowanie",
+        stepCodes: "Kody",
+        stepCheckout: "Wyjazd",
+        paymentsTitle: "Szczegóły płatności",
+        depositName: "Zaliczka",
+        depositDesc: "Zapłacona zgodnie z umową",
+        restName: "Pozostała kwota",
+        deadlinePrefix: "Termin płatności pozostałej kwoty: ",
+        bondName: "Kaucja",
+        bondDesc: "Depozyt zabezpieczający",
+        statusPaid: "Zapłacono",
+        statusUnpaid: "Do zapłaty",
+        progressText: "Postęp płatności: ",
+        progressOf: " € z ",
+        checkinCardTitle: "Krok 1: Zameldowanie",
+        checkinNotYetTitle: "Zameldowanie online nie jest jeszcze aktywne.",
+        checkinAvailableFrom: "Będzie dostępne 48h przed rozpoczęciem pobytu, czyli od:",
+        checkinPaymentRequiredTitle: "Najpierw uregulować płatność",
+        checkinPaymentRequiredDesc: "Zameldowanie online będzie dostępne dopiero po opłaceniu zaliczki, pozostałej kwoty oraz kaucji. Sprawdź statusy płatności powyżej.",
+        checkinDoneTitle: "Zameldowanie zakończone!",
+        checkinDoneDesc: "Dane gości zostały przesłane i zatwierdzone.",
+        checkinFormIntro: "Zgodnie z wymaganiami, prosimy o podanie danych wszystkich osób planujących pobyt. Liczba osób w rezerwacji:",
+        btnCheckin: "Zatwierdź zameldowanie",
+        codesCardTitle: "Krok 2: Instrukcja i Kody",
+        btnPdf: "Otwórz Instrukcję Apartamentu (PDF)",
+        codesPrePdfTitle: "Instrukcja apartamentu",
+        codesPrePdfDesc: "Przed wyświetleniem kodów wejściowych prosimy o zapoznanie się z instrukcją apartamentu. Kliknij przycisk powyżej, aby ją otworzyć.",
+        codesUnlocked: "Instrukcja apartamentu przeczytana. Kody dostępu odblokowane.",
+        checkoutCardTitle: "Krok 3: Wymeldowanie",
+        checkoutDoneTitle: "Wymeldowanie zakończone!",
+        checkoutDoneDesc: "Dziękujemy za wizytę. Kaucja zostanie zwrócona.",
+        checkoutIntro: "Aby dokonać wymeldowania i odzyskać kaucję zabezpieczającą, należy przy wyjściu z mieszkania nagrać krótki film wideo przedstawiający ogólny stan apartamentu i wgrać go poniżej.",
+        uploadBoxText: "Wybierz lub nagraj wideo",
+        uploadSubtext: "Format mp4, mov, avi (maksymalnie 30 MB)",
+        btnCheckout: "Wgraj wideo i wymelduj się",
+        overlayTitle: "Przetwarzanie danych",
+        overlayText: "Komunikacja z serwerem...",
+        overlayCheckin: "Wysyłanie danych zameldowania do bazy...",
+        overlayCheckout: "Wgrywanie nagrania wideo i zgłaszanie wyjazdu... Proszę nie zamykać okna.",
+        pdfModalTitle: "Instrukcja apartamentu",
+        pdfClose: "Zamknij",
+        guestLabel: "Gość",
+        mainGuest: "(Główny rezerwujący)",
+        fldName: "Imię i nazwisko",
+        fldNamePh: "np. Jan Kowalski",
+        fldPassport: "Numer dowodu lub paszportu",
+        fldPassportPh: "np. ABA123456",
+        fldDob: "Data urodzenia",
+        fldNationality: "Narodowość",
+        fldNationalityPh: "np. Polska",
+        fldNationalityDefault: "Polska",
+        apt: "Apartament nr",
+        codeEntrance: "Kod do drzwi wejściowych",
+        codeBox: "Kod do skrytki z kluczami",
+        fileTooLarge: "Wybrane wideo jest za duże ({SIZE} MB). Maksymalny rozmiar to 30 MB. Nagraj krótszy film wideo (10-20 sekund).",
+        fileChanged: "Zmieniono plik wideo",
+        fileSelected: "Wybrano: ",
+        alertFormEmpty: "Proszę uzupełnić wszystkie pola dla każdego gościa.",
+        checkoutSuccess: "Wymeldowanie pomyślne (Test offline). Dziękujemy!",
+        checkinErrorConn: "Błąd połączenia: ",
+        checkoutErrorConn: "Błąd komunikacji: ",
+        noRoomsError: "Błąd: Nie znaleziono przypisanych apartamentów. Skontaktuj się z obsługą.",
+        nights: "nocy",
+        welcomePrefix: "Witaj, "
+      },
+      en: {
+        loginIntro: "Please sign in with the e-mail address provided during your booking and your first name.",
+        lblEmail: "E-mail address",
+        emailPlaceholder: "e.g. john.smith@gmail.com",
+        lblPassword: "Password",
+        passwordPlaceholder: "Your first name (e.g. anna)",
+        passwordHint: "Password is case-insensitive.",
+        btnLogin: "Sign in",
+        loginErrorEmpty: "Please fill in all fields.",
+        loginErrorBad: "Invalid login credentials (try test@azzurro.pl / anna).",
+        loginErrorConn: "Connection error: ",
+        logout: "Sign out",
+        dashSubtitle: "We are delighted to have you as our guest.",
+        stepPayment: "Payment",
+        stepCheckin: "Check-in",
+        stepCodes: "Codes",
+        stepCheckout: "Check-out",
+        paymentsTitle: "Payment details",
+        depositName: "Deposit",
+        depositDesc: "Paid as per agreement",
+        restName: "Remaining balance",
+        deadlinePrefix: "Payment due date: ",
+        bondName: "Security bond",
+        bondDesc: "Refundable security deposit",
+        statusPaid: "Paid",
+        statusUnpaid: "Unpaid",
+        progressText: "Payment progress: ",
+        progressOf: " € of ",
+        checkinCardTitle: "Step 1: Check-in",
+        checkinNotYetTitle: "Online check-in is not yet available.",
+        checkinAvailableFrom: "It will be available 48 hours before your arrival, from:",
+        checkinPaymentRequiredTitle: "Payment required first",
+        checkinPaymentRequiredDesc: "Online check-in will become available once the deposit, remaining balance, and security bond are all marked as paid. Please check the payment statuses above.",
+        checkinDoneTitle: "Check-in completed!",
+        checkinDoneDesc: "Guest details have been submitted and confirmed.",
+        checkinFormIntro: "Please provide details for all guests in your reservation. Number of guests:",
+        btnCheckin: "Confirm check-in",
+        codesCardTitle: "Step 2: Guide & Access Codes",
+        btnPdf: "Open Apartment Guide (PDF)",
+        codesPrePdfTitle: "Apartment guide",
+        codesPrePdfDesc: "Please read the apartment guide before your access codes are revealed. Click the button above to open it.",
+        codesUnlocked: "Apartment guide read. Access codes unlocked.",
+        checkoutCardTitle: "Step 3: Check-out",
+        checkoutDoneTitle: "Check-out completed!",
+        checkoutDoneDesc: "Thank you for your stay. The security bond will be refunded.",
+        checkoutIntro: "To complete check-out and recover your security bond, please record a short video of the apartment's general condition as you leave and upload it below.",
+        uploadBoxText: "Choose or record a video",
+        uploadSubtext: "mp4, mov, avi format (max 30 MB)",
+        btnCheckout: "Upload video & check out",
+        overlayTitle: "Processing",
+        overlayText: "Communicating with server...",
+        overlayCheckin: "Submitting check-in data...",
+        overlayCheckout: "Uploading video and registering departure... Please do not close this window.",
+        pdfModalTitle: "Apartment guide",
+        pdfClose: "Close",
+        guestLabel: "Guest",
+        mainGuest: "(Primary guest)",
+        fldName: "Full name",
+        fldNamePh: "e.g. Anna Smith",
+        fldPassport: "ID / passport number",
+        fldPassportPh: "e.g. ABA123456",
+        fldDob: "Date of birth",
+        fldNationality: "Nationality",
+        fldNationalityPh: "e.g. Italian",
+        fldNationalityDefault: "Italian",
+        apt: "Apartment no.",
+        codeEntrance: "Entrance door code",
+        codeBox: "Key lockbox code",
+        fileTooLarge: "The selected video is too large ({SIZE} MB). Maximum file size is 30 MB. Please record a shorter video (10–20 seconds).",
+        fileChanged: "Video file changed",
+        fileSelected: "Selected: ",
+        alertFormEmpty: "Please fill in all fields for every guest.",
+        checkoutSuccess: "Check-out successful (offline test). Thank you!",
+        checkinErrorConn: "Connection error: ",
+        checkoutErrorConn: "Communication error: ",
+        noRoomsError: "Error: No apartments assigned. Please contact the host.",
+        nights: "nights",
+        welcomePrefix: "Welcome, "
+      }
+    };
+
+    // ──── Globalny stan aplikacji ────
+    var currentReservation = null;
+    var isPdfOpened = false;
+    var selectedVideoBase64 = null;
+    var selectedVideoFilename = null;
+    var currentLang = 'pl';
+
+    // ──── Helpers tłumaczeń ────
+    function t(key) {
+      return (STRINGS[currentLang] && STRINGS[currentLang][key]) ? STRINGS[currentLang][key] : (STRINGS['pl'][key] || key);
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      document.querySelectorAll('.lang-btn').forEach(function(btn) {
+        btn.classList.toggle('active', btn.textContent.indexOf(lang.toUpperCase()) > -1);
+      });
+      applyTranslations();
+    }
+
+    function applyTranslations() {
+      // Ekran logowania
+      var loginIntroEl = document.getElementById('txt-login-intro');
+      if (loginIntroEl) loginIntroEl.textContent = t('loginIntro');
+
+      var lblEmailEl = document.getElementById('lbl-email');
+      if (lblEmailEl) lblEmailEl.textContent = t('lblEmail');
+
+      var loginEmailEl = document.getElementById('login-email');
+      if (loginEmailEl) loginEmailEl.placeholder = t('emailPlaceholder');
+
+      var lblPasswordEl = document.getElementById('lbl-password');
+      if (lblPasswordEl) lblPasswordEl.textContent = t('lblPassword');
+
+      var loginPasswordEl = document.getElementById('login-password');
+      if (loginPasswordEl) loginPasswordEl.placeholder = t('passwordPlaceholder');
+
+      var passwordHintEl = document.getElementById('txt-password-hint');
+      if (passwordHintEl) passwordHintEl.textContent = t('passwordHint');
+
+      var btnLoginEl = document.getElementById('txt-btn-login');
+      if (btnLoginEl) btnLoginEl.textContent = t('btnLogin');
+
+      // Dashboard - statyczne etykiety
+      var logoutEl = document.getElementById('txt-logout');
+      if (logoutEl) logoutEl.textContent = t('logout');
+
+      var dashSubEl = document.getElementById('txt-dash-subtitle');
+      if (dashSubEl) dashSubEl.textContent = t('dashSubtitle');
+
+      // Stepper
+      var stepPayEl = document.getElementById('step-lbl-payment');
+      if (stepPayEl) stepPayEl.textContent = t('stepPayment');
+
+      var stepChEl = document.getElementById('step-lbl-checkin');
+      if (stepChEl) stepChEl.textContent = t('stepCheckin');
+
+      var stepCoEl = document.getElementById('step-lbl-codes');
+      if (stepCoEl) stepCoEl.textContent = t('stepCodes');
+
+      var stepOutEl = document.getElementById('step-lbl-checkout');
+      if (stepOutEl) stepOutEl.textContent = t('stepCheckout');
+
+      // Karta płatności
+      var payTitleEl = document.getElementById('txt-payments-title');
+      if (payTitleEl) payTitleEl.textContent = t('paymentsTitle');
+
+      var depNameEl = document.getElementById('txt-deposit-name');
+      if (depNameEl) depNameEl.textContent = t('depositName');
+
+      var depDescEl = document.getElementById('txt-deposit-desc');
+      if (depDescEl) depDescEl.textContent = t('depositDesc');
+
+      var restNameEl = document.getElementById('txt-rest-name');
+      if (restNameEl) restNameEl.textContent = t('restName');
+
+      var bondNameEl = document.getElementById('txt-bond-name');
+      if (bondNameEl) bondNameEl.textContent = t('bondName');
+
+      var bondDescEl = document.getElementById('txt-bond-desc');
+      if (bondDescEl) bondDescEl.textContent = t('bondDesc');
+
+      // Karta check-in
+      var checkinTitleEl = document.getElementById('txt-checkin-card-title');
+      if (checkinTitleEl) checkinTitleEl.textContent = t('checkinCardTitle');
+
+      var notYetEl = document.getElementById('txt-checkin-not-yet-title');
+      if (notYetEl) notYetEl.textContent = t('checkinNotYetTitle');
+
+      var availFromEl = document.getElementById('txt-checkin-available-from');
+      if (availFromEl) availFromEl.textContent = t('checkinAvailableFrom');
+
+      var payReqTitleEl = document.getElementById('txt-checkin-payment-required-title');
+      if (payReqTitleEl) payReqTitleEl.textContent = t('checkinPaymentRequiredTitle');
+
+      var payReqDescEl = document.getElementById('txt-checkin-payment-required-desc');
+      if (payReqDescEl) payReqDescEl.textContent = t('checkinPaymentRequiredDesc');
+
+      var doneTitleEl = document.getElementById('txt-checkin-done-title');
+      if (doneTitleEl) doneTitleEl.textContent = t('checkinDoneTitle');
+
+      var doneDescEl = document.getElementById('txt-checkin-done-desc');
+      if (doneDescEl) doneDescEl.textContent = t('checkinDoneDesc');
+
+      var formIntroEl = document.getElementById('txt-checkin-form-intro');
+      if (formIntroEl) formIntroEl.textContent = t('checkinFormIntro');
+
+      var btnCheckinEl = document.getElementById('txt-btn-checkin');
+      if (btnCheckinEl) btnCheckinEl.textContent = t('btnCheckin');
+
+      // Karta kodów
+      var codesTitleEl = document.getElementById('txt-codes-card-title');
+      if (codesTitleEl) codesTitleEl.textContent = t('codesCardTitle');
+
+      var btnPdfEl = document.getElementById('txt-btn-pdf');
+      if (btnPdfEl) btnPdfEl.textContent = t('btnPdf');
+
+      var prePdfTitleEl = document.getElementById('txt-codes-pre-pdf-title');
+      if (prePdfTitleEl) prePdfTitleEl.textContent = t('codesPrePdfTitle');
+
+      var prePdfDescEl = document.getElementById('txt-codes-pre-pdf-desc');
+      if (prePdfDescEl) prePdfDescEl.textContent = t('codesPrePdfDesc');
+
+      var codesUnlockedEl = document.getElementById('txt-codes-unlocked');
+      if (codesUnlockedEl) codesUnlockedEl.textContent = t('codesUnlocked');
+
+      // Karta checkout
+      var checkoutTitleEl = document.getElementById('txt-checkout-card-title');
+      if (checkoutTitleEl) checkoutTitleEl.textContent = t('checkoutCardTitle');
+
+      var coDoneTitleEl = document.getElementById('txt-checkout-done-title');
+      if (coDoneTitleEl) coDoneTitleEl.textContent = t('checkoutDoneTitle');
+
+      var coDoneDescEl = document.getElementById('txt-checkout-done-desc');
+      if (coDoneDescEl) coDoneDescEl.textContent = t('checkoutDoneDesc');
+
+      var coIntroEl = document.getElementById('txt-checkout-intro');
+      if (coIntroEl) coIntroEl.textContent = t('checkoutIntro');
+
+      var uploadBoxEl = document.getElementById('upload-box-text');
+      if (uploadBoxEl && uploadBoxEl.textContent !== t('fileChanged')) {
+        uploadBoxEl.textContent = t('uploadBoxText');
+      }
+
+      var uploadSubEl = document.getElementById('txt-upload-subtext');
+      if (uploadSubEl) uploadSubEl.textContent = t('uploadSubtext');
+
+      var btnCheckoutEl = document.getElementById('txt-btn-checkout');
+      if (btnCheckoutEl) btnCheckoutEl.textContent = t('btnCheckout');
+
+      // Overlay
+      var overlayTitleEl = document.getElementById('txt-overlay-title');
+      if (overlayTitleEl) overlayTitleEl.textContent = t('overlayTitle');
+
+      // Modal PDF
+      var pdfModalTitleEl = document.getElementById('txt-pdf-modal-title');
+      if (pdfModalTitleEl) pdfModalTitleEl.textContent = t('pdfModalTitle');
+
+      var pdfCloseBtnEl = document.getElementById('txt-pdf-close-btn');
+      if (pdfCloseBtnEl) pdfCloseBtnEl.textContent = t('pdfClose');
+    }
+
+    // ──── Inicjalizacja ────
+    document.addEventListener("DOMContentLoaded", function() {
+      applyTranslations();
+
+      // Sprawdzamy czy w localStorage jest zapamiętana rezerwacja
+      var cached = localStorage.getItem("azzurro_reservation");
+      var pdfOpenedCache = localStorage.getItem("azzurro_pdf_opened");
+
+      if (pdfOpenedCache === "true") {
+        isPdfOpened = true;
+      }
+
+      if (cached) {
+        try {
+          currentReservation = JSON.parse(cached);
+          // Przywracamy język z rezerwacji
+          if (currentReservation.lang === 'EN') {
+            currentLang = 'en';
+            document.querySelectorAll('.lang-btn').forEach(function(btn) {
+              btn.classList.toggle('active', btn.textContent.indexOf('EN') > -1);
+            });
+            applyTranslations();
+          }
+          showDashboard(currentReservation);
+        } catch(e) {
+          localStorage.removeItem("azzurro_reservation");
+        }
+      }
+    });
+
+    // Funkcja wywołująca animację/pokazanie overlay
+    function showOverlay(key) {
+      document.getElementById('txt-overlay-title').textContent = t('overlayTitle');
+      document.getElementById("overlay-text").textContent = t(key) || key;
+      document.getElementById("loading-overlay").style.display = "flex";
+    }
+
+    function hideOverlay() {
+      document.getElementById("loading-overlay").style.display = "none";
+    }
+
+    // ──── Obsługa logowania ────
+    function handleLogin() {
+      var email = document.getElementById("login-email").value.trim();
+      var password = document.getElementById("login-password").value.trim();
+      var errorBox = document.getElementById("login-error-box");
+
+      if (!email || !password) {
+        errorBox.textContent = t('loginErrorEmpty');
+        errorBox.style.display = "flex";
+        return;
+      }
+
+      errorBox.style.display = "none";
+      document.getElementById("btn-login").disabled = true;
+      document.getElementById("login-spinner").style.display = "block";
+
+      // Obsługa w środowisku Google Apps Script
+      if (typeof google !== "undefined" && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(function(response) {
+            document.getElementById("btn-login").disabled = false;
+            document.getElementById("login-spinner").style.display = "none";
+
+            if (response.success) {
+              currentReservation = response.reservation;
+              // Ustawiamy język na podstawie danych rezerwacji
+              if (currentReservation.lang === 'EN') {
+                currentLang = 'en';
+                document.querySelectorAll('.lang-btn').forEach(function(btn) {
+                  btn.classList.toggle('active', btn.textContent.indexOf('EN') > -1);
+                });
+                applyTranslations();
+              }
+              localStorage.setItem("azzurro_reservation", JSON.stringify(currentReservation));
+              showDashboard(currentReservation);
+            } else {
+              errorBox.textContent = response.message || t('loginErrorBad');
+              errorBox.style.display = "flex";
+            }
+          })
+          .withFailureHandler(function(err) {
+            document.getElementById("btn-login").disabled = false;
+            document.getElementById("login-spinner").style.display = "none";
+            errorBox.textContent = t('loginErrorConn') + (err.message || err);
+            errorBox.style.display = "flex";
+          })
+          .loginGuest(email, password);
+      } else {
+        // Tryb deweloperski / testowy offline
+        setTimeout(function() {
+          document.getElementById("btn-login").disabled = false;
+          document.getElementById("login-spinner").style.display = "none";
+
+          if (email === "test@azzurro.pl" && password.toLowerCase() === "anna") {
+            currentReservation = {
+              lp: 123,
+              title: "Test Umowa",
+              room: "1 2",
+              guestsCount: 2,
+              dateFrom: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+              dateTo: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+              nightsCount: 7,
+              pricePln: 2500,
+              pricePlnWordsPl: "Dwa tysiące pięćset PLN",
+              pricePlnWordsIt: "",
+              depositAmount: 150,
+              restAmount: 350,
+              bondAmount: 200,
+              paymentDeadline: "2026-06-08",
+              email: "test@azzurro.pl",
+              fullName: "Anna Nowak",
+              depositStatus: "Zapłacono",
+              restStatus: "Zapłacono",
+              bondStatus: "",
+              checkOutStatus: "",
+              isCheckedIn: false,
+              lang: currentLang === 'en' ? 'EN' : 'PL'
+            };
+            localStorage.setItem("azzurro_reservation", JSON.stringify(currentReservation));
+            showDashboard(currentReservation);
+          } else {
+            errorBox.textContent = t('loginErrorBad');
+            errorBox.style.display = "flex";
+          }
+        }, 1000);
+      }
+    }
+
+    // ──── Wylogowanie ────
+    function handleLogout() {
+      localStorage.removeItem("azzurro_reservation");
+      localStorage.removeItem("azzurro_pdf_opened");
+      currentReservation = null;
+      isPdfOpened = false;
+
+      document.getElementById("login-email").value = "";
+      document.getElementById("login-password").value = "";
+      document.getElementById("login-error-box").style.display = "none";
+
+      document.getElementById("dash-section").classList.add("hidden");
+      document.getElementById("login-section").classList.remove("hidden");
+      applyTranslations();
+    }
+
+    // ──── Wyświetlenie Dashboardu i wczytanie stanu rezerwacji ────
+    function showDashboard(res) {
+      document.getElementById("login-section").classList.add("hidden");
+      document.getElementById("dash-section").classList.remove("hidden");
+      applyTranslations();
+
+      // Powitanie i szczegóły
+      document.getElementById("guest-welcome").textContent = t('welcomePrefix') + res.fullName + "!";
+
+      var datesStr = formatDateFriendly(res.dateFrom) + " – " + formatDateFriendly(res.dateTo) + " (" + res.nightsCount + " " + t('nights') + ")";
+      document.getElementById("stay-dates").textContent = datesStr;
+
+      // Płatności
+      document.getElementById("val-deposit-amount").textContent = res.depositAmount + " €";
+      document.getElementById("val-rest-amount").textContent = res.restAmount + " €";
+      document.getElementById("val-bond-amount").textContent = res.bondAmount + " €";
+      document.getElementById("val-payment-deadline").textContent = t('deadlinePrefix') + res.paymentDeadline;
+
+      // Statusy
+      setPaymentStatusBadge("badge-deposit-status", res.depositStatus);
+      setPaymentStatusBadge("badge-rest-status", res.restStatus);
+      setPaymentStatusBadge("badge-bond-status", res.bondStatus);
+
+      // Pasek postępu finansowego
+      var total = res.depositAmount + res.restAmount + res.bondAmount;
+      var paid = 0;
+      var ds = (res.depositStatus || "").toLowerCase();
+      var rs = (res.restStatus || "").toLowerCase();
+      var bs = (res.bondStatus || "").toLowerCase();
+      if (ds === "zapłacono" || ds === "paid") paid += res.depositAmount;
+      if (rs === "zapłacono" || rs === "paid") paid += res.restAmount;
+      if (bs === "zapłacono" || bs === "paid") paid += res.bondAmount;
+
+      var pct = total > 0 ? Math.round((paid / total) * 100) : 0;
+      document.getElementById("payment-bar").style.width = pct + "%";
+      document.getElementById("payment-progress-text").textContent = t('progressText') + pct + "% (" + paid + t('progressOf') + total + " €)";
+
+      // Określenie bieżącego kroku logicznego
+      refreshProgressStepper(res);
+    }
+
+    // ──── Formatowanie daty na przyjazną ────
+    function formatDateFriendly(dateStr) {
+      if (!dateStr) return "";
+      var date = new Date(dateStr + "T00:00:00");
+      if (currentLang === 'en') {
+        var monthsEn = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        return monthsEn[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear();
+      }
+      var months = ["Sty","Lut","Mar","Kwi","Maj","Cze","Lip","Sie","Wrz","Paź","Lis","Gru"];
+      return date.getDate() + " " + months[date.getMonth()] + " " + date.getFullYear();
+    }
+
+    // ──── Ustawienie etykiety statusu płatności ────
+    function setPaymentStatusBadge(id, status) {
+      var badge = document.getElementById(id);
+      var s = (status || "").toLowerCase();
+      if (s === "zapłacono" || s === "paid") {
+        badge.textContent = t('statusPaid');
+        badge.className = "status-badge paid";
+      } else {
+        badge.textContent = t('statusUnpaid');
+        badge.className = "status-badge unpaid";
+      }
+    }
+
+    // ──── Sprawdzenie czy wszystkie płatności są opłacone ────
+    function isFullyPaid(res) {
+      var ds = (res.depositStatus || "").toLowerCase();
+      var rs = (res.restStatus || "").toLowerCase();
+      var bs = (res.bondStatus || "").toLowerCase();
+      return (
+        (ds === "zapłacono" || ds === "paid") &&
+        (rs === "zapłacono" || rs === "paid") &&
+        (bs === "zapłacono" || bs === "paid")
+      );
+    }
+
+    // ──── Odświeżenie steppera i sekcji w zależności od postępu ────
+    function refreshProgressStepper(res) {
+      var stepPayment = document.getElementById("step-node-payment");
+      var stepCheckin = document.getElementById("step-node-checkin");
+      var stepCodes = document.getElementById("step-node-codes");
+      var stepCheckout = document.getElementById("step-node-checkout");
+      var stepperBar = document.getElementById("stepper-bar");
+
+      // Domyślnie czyścimy klasy
+      [stepPayment, stepCheckin, stepCodes, stepCheckout].forEach(function(el) {
+        el.classList.remove("active", "completed");
+      });
+
+      // Obliczanie stanów
+      var isPaymentDone = isFullyPaid(res);
+      var isCheckinDone = res.isCheckedIn;
+      var isCodesRevealed = isPdfOpened;
+      var cos = (res.checkOutStatus || "").toLowerCase();
+      var isCheckoutDone = (cos === "zakończono" || cos === "welcome_done");
+
+      // Postęp Steppera
+      if (isCheckoutDone) {
+        stepPayment.classList.add("completed");
+        stepCheckin.classList.add("completed");
+        stepCodes.classList.add("completed");
+        stepCheckout.classList.add("completed");
+        stepperBar.style.width = "100%";
+      } else if (isCodesRevealed) {
+        stepPayment.classList.add("completed");
+        stepCheckin.classList.add("completed");
+        stepCodes.classList.add("completed");
+        stepCheckout.classList.add("active");
+        stepperBar.style.width = "75%";
+      } else if (isCheckinDone) {
+        stepPayment.classList.add("completed");
+        stepCheckin.classList.add("completed");
+        stepCodes.classList.add("active");
+        stepperBar.style.width = "50%";
+      } else if (isPaymentDone) {
+        stepPayment.classList.add("completed");
+        stepCheckin.classList.add("active");
+        stepperBar.style.width = "25%";
+      } else {
+        stepPayment.classList.add("active");
+        stepperBar.style.width = "0%";
+      }
+
+      // KARTA 1: Check-in logic
+      var checkinFormContainer = document.getElementById("checkin-form-container");
+      var checkinCompletedAlert = document.getElementById("checkin-completed-alert");
+      var checkinBefore48h = document.getElementById("checkin-before-48h");
+      var checkinPaymentRequired = document.getElementById("checkin-payment-required");
+
+      checkinFormContainer.classList.add("hidden");
+      checkinCompletedAlert.classList.add("hidden");
+      checkinBefore48h.classList.add("hidden");
+      checkinPaymentRequired.classList.add("hidden");
+
+      if (isCheckinDone) {
+        checkinCompletedAlert.classList.remove("hidden");
+      } else {
+        // Sprawdzamy czy okno 48h jest otwarte
+        var arrivalDate = new Date(res.dateFrom + "T00:00:00");
+        var now = new Date();
+        var checkInOpenTime = new Date(arrivalDate.getTime() - 48 * 60 * 60 * 1000);
+
+        if (now >= checkInOpenTime) {
+          if (isPaymentDone) {
+            checkinFormContainer.classList.remove("hidden");
+            document.getElementById("checkin-people-count").textContent = res.guestsCount;
+            generateGuestsFields(res.guestsCount);
+          } else {
+            // 48h minęło, ale płatności nie są uregulowane — blokujemy check-in
+            checkinPaymentRequired.classList.remove("hidden");
+          }
+        } else {
+          checkinBefore48h.classList.remove("hidden");
+          document.getElementById("checkin-open-time").textContent = formatDateTimeFull(checkInOpenTime);
+        }
+      }
+
+      // KARTA 2: Kody dostępu
+      var cardCodes = document.getElementById("card-codes");
+      var codesPdfSection = document.getElementById("codes-pdf-section");
+      var codesPrePdf = document.getElementById("codes-pre-pdf");
+      var codesDisplayContainer = document.getElementById("codes-display-container");
+
+      cardCodes.classList.add("card-locked");
+      codesPdfSection.classList.add("hidden");
+      codesPrePdf.classList.add("hidden");
+      codesDisplayContainer.classList.add("hidden");
+
+      if (isCheckinDone) {
+        cardCodes.classList.remove("card-locked");
+        codesPdfSection.classList.remove("hidden");
+        if (isPdfOpened) {
+          codesDisplayContainer.classList.remove("hidden");
+          displayRoomCodes(res.room);
+        } else {
+          codesPrePdf.classList.remove("hidden");
+        }
+      }
+
+      // KARTA 3: Wymeldowanie
+      var cardCheckout = document.getElementById("card-checkout");
+      var checkoutCompletedAlert = document.getElementById("checkout-completed-alert");
+      var checkoutFormContainer = document.getElementById("checkout-form-container");
+
+      cardCheckout.classList.add("card-locked");
+      checkoutCompletedAlert.classList.add("hidden");
+      checkoutFormContainer.classList.add("hidden");
+
+      if (isCheckinDone && isPdfOpened) {
+        cardCheckout.classList.remove("card-locked");
+        if (isCheckoutDone) {
+          checkoutCompletedAlert.classList.remove("hidden");
+        } else {
+          checkoutFormContainer.classList.remove("hidden");
+        }
+      }
+    }
+
+    // ──── Formatowanie daty i godziny (pełna) ────
+    function formatDateTimeFull(date) {
+      if (currentLang === 'en') {
+        return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) +
+               " at " + date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      }
+      return date.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' }) +
+             ", godz. " + date.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // ──── Dynamiczne generowanie pól dla gości w formularzu check-in ────
+    function generateGuestsFields(count) {
+      var container = document.getElementById("dynamic-guests-fields");
+      container.innerHTML = "";
+
+      for (var i = 1; i <= count; i++) {
+        var guestTitle = t('guestLabel') + ' ' + i + ' ' + (i === 1 ? t('mainGuest') : '');
+        var guestHtml = '<div class="guest-form-card">' +
+          '<div class="guest-form-title">' + guestTitle + '</div>' +
+
+          '<div class="input-group">' +
+          '<label class="input-label" for="guest-name-' + i + '">' + t('fldName') + '</label>' +
+          '<input type="text" id="guest-name-' + i + '" class="input-control" placeholder="' + t('fldNamePh') + '" required>' +
+          '</div>' +
+
+          '<div class="input-group">' +
+          '<label class="input-label" for="guest-passport-' + i + '">' + t('fldPassport') + '</label>' +
+          '<input type="text" id="guest-passport-' + i + '" class="input-control" placeholder="' + t('fldPassportPh') + '" required>' +
+          '</div>' +
+
+          '<div class="input-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">' +
+          '<div>' +
+          '<label class="input-label" for="guest-dob-' + i + '">' + t('fldDob') + '</label>' +
+          '<input type="date" id="guest-dob-' + i + '" class="input-control" required>' +
+          '</div>' +
+          '<div>' +
+          '<label class="input-label" for="guest-nationality-' + i + '">' + t('fldNationality') + '</label>' +
+          '<input type="text" id="guest-nationality-' + i + '" class="input-control" placeholder="' + t('fldNationalityPh') + '" value="' + t('fldNationalityDefault') + '" required>' +
+          '</div>' +
+          '</div>' +
+
+          '</div>';
+        container.insertAdjacentHTML('beforeend', guestHtml);
+      }
+
+      // Domyślnie wstawiamy imię głównego gościa w polu Gość 1
+      if (currentReservation) {
+        var mainNameInput = document.getElementById("guest-name-1");
+        if (mainNameInput) {
+          mainNameInput.value = currentReservation.fullName;
+        }
+      }
+    }
+  </script>
+
+  <!-- Druga część skryptu -->
+  <script>
+    function submitCheckInForm() {
+      if (!currentReservation) return;
+
+      // Zabezpieczenie po stronie klienta: nie pozwalamy wysłać check-in,
+      // jeśli zaliczka, reszta i kaucja nie są opłacone (nawet gdyby ktoś
+      // ominął UI i wywołał tę funkcję bezpośrednio).
+      if (!isFullyPaid(currentReservation)) {
+        alert(currentLang === 'en'
+          ? "Check-in is not yet available. Please complete all payments (deposit, remaining balance, and security bond) first."
+          : "Zameldowanie nie jest jeszcze dostępne. Najpierw należy uregulować wszystkie płatności (zaliczkę, pozostałą kwotę i kaucję).");
+        refreshProgressStepper(currentReservation);
+        return;
+      }
+
+      var count = currentReservation.guestsCount;
+      var guests = [];
+
+      for (var i = 1; i <= count; i++) {
+        var name = document.getElementById("guest-name-" + i).value.trim();
+        var passport = document.getElementById("guest-passport-" + i).value.trim();
+        var dob = document.getElementById("guest-dob-" + i).value;
+        var nationality = document.getElementById("guest-nationality-" + i).value.trim();
+
+        if (!name || !passport || !dob || !nationality) {
+          alert(t('alertFormEmpty'));
+          return;
+        }
+
+        guests.push({
+          name: name,
+          passport: passport,
+          dob: dob,
+          nationality: nationality
+        });
+      }
+
+      showOverlay('overlayCheckin');
+
+      if (typeof google !== "undefined" && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(function(response) {
+            hideOverlay();
+            if (response.success) {
+              currentReservation.isCheckedIn = true;
+              localStorage.setItem("azzurro_reservation", JSON.stringify(currentReservation));
+              showDashboard(currentReservation);
+
+              // Smooth scroll do sekcji kodów dostępu
+              setTimeout(function() {
+                document.getElementById("card-codes").scrollIntoView({ behavior: 'smooth' });
+              }, 400);
+            } else {
+              alert("Błąd zameldowania: " + response.message);
+            }
+          })
+          .withFailureHandler(function(err) {
+            hideOverlay();
+            alert(t('checkinErrorConn') + (err.message || err));
+          })
+          .submitCheckIn(currentReservation.lp, guests);
+      } else {
+        // Test offline
+        setTimeout(function() {
+          hideOverlay();
+          currentReservation.isCheckedIn = true;
+          localStorage.setItem("azzurro_reservation", JSON.stringify(currentReservation));
+          showDashboard(currentReservation);
+
+          setTimeout(function() {
+            document.getElementById("card-codes").scrollIntoView({ behavior: 'smooth' });
+          }, 400);
+        }, 1200);
+      }
+    }
+
+    // ──── Kliknięcie PDF z instrukcją apartamentu ────
+    function handlePdfOpenClick() {
+      var modal = document.getElementById("pdf-modal");
+      var iframe = document.getElementById("pdf-iframe");
+
+      // Ładujemy właściwy PDF w zależności od języka
+      iframe.src = (currentLang === 'en') ? PDF_EN : PDF_PL;
+      modal.style.display = "flex";
+
+      // Zapisujemy fakt otwarcia w stanie
+      if (!isPdfOpened) {
+        isPdfOpened = true;
+        localStorage.setItem("azzurro_pdf_opened", "true");
+
+        // Aktualizujemy Dashboard
+        refreshProgressStepper(currentReservation);
+      }
+    }
+
+    // ──── Zamknięcie modala PDF i przewinięcie do kodów ────
+    function closePdfModal() {
+      var modal = document.getElementById("pdf-modal");
+      var iframe = document.getElementById("pdf-iframe");
+
+      modal.style.display = "none";
+      iframe.src = "";
+
+      // Scroll do kodów po zamknięciu
+      setTimeout(function() {
+        var codesEl = document.getElementById("codes-display-container");
+        if (codesEl && !codesEl.classList.contains("hidden")) {
+          codesEl.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 300);
+    }
+
+    // ──── Wyświetlenie kodów dostępu dla poszczególnych pokoi ────
+    function displayRoomCodes(roomStr) {
+      var container = document.getElementById("rooms-codes-list");
+      container.innerHTML = "";
+
+      if (!roomStr) return;
+
+      // Szukamy cyfr 1, 2, 3 w ciągu pokoju
+      var regex = /[123]/g;
+      var match;
+      var uniqueRooms = {};
+
+      while ((match = regex.exec(roomStr.toString())) !== null) {
+        uniqueRooms[match[0]] = true;
+      }
+
+      var roomsFound = Object.keys(uniqueRooms).sort();
+
+      if (roomsFound.length === 0) {
+        container.innerHTML = '<p style="font-size: 13px; color: var(--error);">' + t('noRoomsError') + '</p>';
+        return;
+      }
+
+      roomsFound.forEach(function(roomNum) {
+        var details = ROOM_CODES_MAP[roomNum];
+        if (!details) return;
+
+        var desc = (currentLang === 'en') ? details.desc_en : details.desc_pl;
+
+        var roomHtml = '<div class="apt-code-card active-card">' +
+          '<div class="apt-code-header">' +
+          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+          '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>' +
+          '<polyline points="9 22 9 12 15 12 15 22"/>' +
+          '</svg>' +
+          '<span>' + t('apt') + ' ' + roomNum + '</span>' +
+          '</div>' +
+
+          '<div class="code-row">' +
+          '<div class="code-label"><span>🔑 ' + t('codeEntrance') + '</span></div>' +
+          '<div class="code-value">' + details.door + '</div>' +
+          '</div>' +
+
+          '<div class="code-row">' +
+          '<div class="code-label"><span>🔐 ' + t('codeBox') + '</span></div>' +
+          '<div class="code-value">' + details.box + '</div>' +
+          '</div>' +
+
+          '<div class="code-instruction">' + desc + '</div>' +
+          '</div>';
+
+        container.insertAdjacentHTML('beforeend', roomHtml);
+      });
+    }
+
+    // ──── Obsługa wyboru wideo check-out ────
+    function triggerVideoFileInput() {
+      document.getElementById("checkout-video-input").click();
+    }
+
+    function handleVideoFileSelection() {
+      var fileInput = document.getElementById("checkout-video-input");
+      var uploadText = document.getElementById("upload-box-text");
+      var fileNameDiv = document.getElementById("selected-file-name");
+      var btnSubmit = document.getElementById("btn-submit-checkout");
+
+      if (fileInput.files.length === 0) {
+        selectedVideoBase64 = null;
+        selectedVideoFilename = null;
+        uploadText.textContent = t('uploadBoxText');
+        fileNameDiv.style.display = "none";
+        btnSubmit.disabled = true;
+        return;
+      }
+
+      var file = fileInput.files[0];
+
+      // Sprawdzamy rozmiar pliku (maks. 30MB)
+      if (file.size > 30 * 1024 * 1024) {
+        var sizeMB = (file.size / (1024*1024)).toFixed(1);
+        alert(t('fileTooLarge').replace('{SIZE}', sizeMB));
+        fileInput.value = "";
+        selectedVideoBase64 = null;
+        selectedVideoFilename = null;
+        uploadText.textContent = t('uploadBoxText');
+        fileNameDiv.style.display = "none";
+        btnSubmit.disabled = true;
+        return;
+      }
+
+      uploadText.textContent = t('fileChanged');
+      fileNameDiv.textContent = t('fileSelected') + file.name + " (" + (file.size / (1024*1024)).toFixed(2) + " MB)";
+      fileNameDiv.style.display = "block";
+
+      // Konwersja do Base64
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var dataUrl = e.target.result;
+        selectedVideoBase64 = dataUrl.split(',')[1];
+        selectedVideoFilename = file.name;
+        btnSubmit.disabled = false;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // ──── Wysłanie check-out ────
+    function submitCheckOut() {
+      if (!currentReservation || !selectedVideoBase64 || !selectedVideoFilename) return;
+
+      showOverlay('overlayCheckout');
+
+      if (typeof google !== "undefined" && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(function(response) {
+            hideOverlay();
+            if (response.success) {
+              currentReservation.checkOutStatus = "WELCOME_DONE";
+              localStorage.setItem("azzurro_reservation", JSON.stringify(currentReservation));
+              showDashboard(currentReservation);
+              alert(currentLang === 'en' ? "Check-out completed successfully. Thank you!" : "Wymeldowanie zakończone pomyślnie. Dziękujemy!");
+            } else {
+              alert("Błąd wymeldowania: " + response.message);
+            }
+          })
+          .withFailureHandler(function(err) {
+            hideOverlay();
+            alert(t('checkoutErrorConn') + (err.message || err));
+          })
+          .uploadCheckOutVideo(currentReservation.lp, selectedVideoBase64, selectedVideoFilename);
+      } else {
+        // Offline test
+        setTimeout(function() {
+          hideOverlay();
+          currentReservation.checkOutStatus = "WELCOME_DONE";
+          localStorage.setItem("azzurro_reservation", JSON.stringify(currentReservation));
+          showDashboard(currentReservation);
+          alert(t('checkoutSuccess'));
+        }, 2000);
+      }
+    }
+  </script>
+</body>
+</html>
