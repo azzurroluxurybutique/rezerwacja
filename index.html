@@ -692,6 +692,7 @@
             }
             localStorage.setItem("azzurro_reservation", JSON.stringify(currentReservation));
             showDashboard(currentReservation);
+            tawkSetGuestData(currentReservation);
           } else {
             errorBox.textContent = response.message || t('loginErrorBad');
             errorBox.style.display = "flex";
@@ -1091,6 +1092,46 @@
       var uploadBoxEl = document.getElementById("upload-box-text");
       if (uploadBoxEl && uploadBoxEl.textContent !== t('fileChanged')) uploadBoxEl.textContent = t('uploadBoxText');
     }
+  </script>
+
+  <!--Start of Tawk.to Script-->
+  <script type="text/javascript">
+  var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+  (function(){
+  var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+  s1.async=true;
+  s1.src='https://embed.tawk.to/6a3bc01637254e1d4584b7a7/1jrsmcm9j';
+  s1.charset='UTF-8';
+  s1.setAttribute('crossorigin','*');
+  s0.parentNode.insertBefore(s1,s0);
+  })();
+  </script>
+  <!--End of Tawk.to Script-->
+
+  <script>
+  // Po zalogowaniu gościa — przekaż jego dane do Tawk.to
+  // Tawk_API może załadować się asynchronicznie, dlatego używamy onLoad
+  function tawkSetGuestData(res) {
+    function setData() {
+      try {
+        Tawk_API.setAttributes({
+          name:  res.fullName,
+          email: res.email,
+          'Rezerwacja': String(res.lp),
+          'Przyjazd':   res.dateFrom,
+          'Wyjazd':     res.dateTo,
+          'Apartament': String(res.room)
+        }, function(err) { if(err) console.warn('Tawk setAttributes:', err); });
+      } catch(e) {}
+    }
+    if (typeof Tawk_API !== 'undefined' && typeof Tawk_API.setAttributes === 'function') {
+      setData();
+    } else {
+      Tawk_API = Tawk_API || {};
+      var _prev = Tawk_API.onLoad;
+      Tawk_API.onLoad = function() { if(_prev) _prev(); setData(); };
+    }
+  }
   </script>
 </body>
 </html>
