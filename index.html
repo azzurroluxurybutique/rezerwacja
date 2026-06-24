@@ -716,6 +716,7 @@
 
     // ──── Logout ────
     function handleLogout() {
+      tawkLogout();
       localStorage.removeItem("azzurro_reservation");
       localStorage.removeItem("azzurro_pdf_opened");
       currentReservation = null;
@@ -1096,7 +1097,10 @@
 
   <!--Start of Tawk.to Script-->
   <script type="text/javascript">
-  var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+  // Ukryj widget zanim Tawk się załaduje — pokaż dopiero po zalogowaniu
+  var Tawk_API = Tawk_API || {};
+  Tawk_API.onLoad = function() { Tawk_API.hideWidget(); };
+  var Tawk_LoadStart = new Date();
   (function(){
   var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
   s1.async=true;
@@ -1109,8 +1113,7 @@
   <!--End of Tawk.to Script-->
 
   <script>
-  // Po zalogowaniu gościa — przekaż jego dane do Tawk.to
-  // Tawk_API może załadować się asynchronicznie, dlatego używamy onLoad
+  // Po zalogowaniu — pokaż widget i ustaw dane gościa
   function tawkSetGuestData(res) {
     function setData() {
       try {
@@ -1122,15 +1125,23 @@
           'Wyjazd':     res.dateTo,
           'Apartament': String(res.room)
         }, function(err) { if(err) console.warn('Tawk setAttributes:', err); });
+        Tawk_API.showWidget();
       } catch(e) {}
     }
     if (typeof Tawk_API !== 'undefined' && typeof Tawk_API.setAttributes === 'function') {
       setData();
     } else {
-      Tawk_API = Tawk_API || {};
       var _prev = Tawk_API.onLoad;
       Tawk_API.onLoad = function() { if(_prev) _prev(); setData(); };
     }
+  }
+
+  // Po wylogowaniu — ukryj widget i zakończ sesję czatu
+  function tawkLogout() {
+    try {
+      Tawk_API.endChat();
+      Tawk_API.hideWidget();
+    } catch(e) {}
   }
   </script>
 </body>
