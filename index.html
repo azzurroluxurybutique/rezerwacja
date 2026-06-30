@@ -407,6 +407,18 @@
           </button>
         </div>
       </div>
+      <!-- KARTA WCZEŚNIEJSZY CHECK-IN / PÓŹNIEJSZY CHECK-OUT -->
+      <div class="card" id="card-early">
+        <div class="card-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span id="txt-early-card-title"></span>
+        </div>
+        <div class="checkin-info-box">
+          <p style="font-weight: 500; color: var(--ocean);" id="txt-early-intro"></p>
+          <p style="margin-top: 6px; font-size: 12px; color: var(--muted); line-height: 1.4;" id="txt-early-price"></p>
+          <p style="margin-top: 10px; font-size: 12px; color: var(--text); line-height: 1.4;" id="txt-early-contact"></p>
+        </div>
+      </div>
     </div>
 
     <!-- OVERLAY LOADING -->
@@ -513,7 +525,13 @@
         alertFormEmpty: "Proszę uzupełnić wszystkie pola dla każdego gościa.",
         checkinErrorConn: "Błąd połączenia: ", checkoutErrorConn: "Błąd komunikacji: ",
         noRoomsError: "Błąd: Nie znaleziono przypisanych apartamentów. Skontaktuj się z obsługą.",
-        nights: "nocy", welcomePrefix: "Witaj, "
+        nights: "nocy", welcomePrefix: "Witaj, ",
+        earlyCardTitle: "Wcześniejszy check-in lub późniejszy check-out",
+        earlyIntro: "Istnieje możliwość wcześniejszego zameldowania lub późniejszego wymeldowania.",
+        earlyPrice1: "Przy rezerwacji 1 apartamentu koszt tej usługi to 49 €.",
+        earlyPrice2: "Przy rezerwacji 2 apartamentów koszt tej usługi to 99 €.",
+        earlyPrice3: "Przy rezerwacji 3 apartamentów koszt tej usługi to 149 €.",
+        earlyContact: "Jeśli chcą Państwo skorzystać z tej możliwości, prosimy o wysłanie zapytania na czacie."
       },
       en: {
         loginIntro: "Please sign in with the e-mail address provided during your booking and your first name.",
@@ -563,7 +581,13 @@
         alertFormEmpty: "Please fill in all fields for every guest.",
         checkinErrorConn: "Connection error: ", checkoutErrorConn: "Communication error: ",
         noRoomsError: "Error: No apartments assigned. Please contact the host.",
-        nights: "nights", welcomePrefix: "Welcome, "
+        nights: "nights", welcomePrefix: "Welcome, ",
+        earlyCardTitle: "Early check-in or late check-out",
+        earlyIntro: "It is possible to check in earlier or check out later than usual.",
+        earlyPrice1: "For a booking of 1 apartment, this service costs 49 €.",
+        earlyPrice2: "For a booking of 2 apartments, this service costs 99 €.",
+        earlyPrice3: "For a booking of 3 apartments, this service costs 149 €.",
+        earlyContact: "If you would like to take advantage of this option, please send us a request via chat."
       }
     };
 
@@ -762,6 +786,20 @@
       document.getElementById("payment-progress-text").textContent = t('progressText') + pct + "% (" + paid + t('progressOf') + total + " €)";
 
       refreshProgressStepper(res);
+      updateEarlySection(res);
+    }
+
+    function updateEarlySection(res) {
+      var el = document.getElementById("txt-early-price");
+      if (!el) return;
+      var roomStr = (res && res.room) ? res.room.toString() : "";
+      var uniqueRooms = {};
+      var match, regex = /[123]/g;
+      while ((match = regex.exec(roomStr)) !== null) uniqueRooms[match[0]] = true;
+      var count = Object.keys(uniqueRooms).length;
+      if (count >= 3) el.textContent = t('earlyPrice3');
+      else if (count === 2) el.textContent = t('earlyPrice2');
+      else el.textContent = t('earlyPrice1');
     }
 
     function formatDateFriendly(dateStr) {
@@ -1078,7 +1116,9 @@
         'txt-checkout-done-title': 'checkoutDoneTitle', 'txt-checkout-done-desc': 'checkoutDoneDesc',
         'txt-checkout-intro': 'checkoutIntro', 'txt-upload-subtext': 'uploadSubtext',
         'txt-btn-checkout': 'btnCheckout', 'txt-overlay-title': 'overlayTitle',
-        'txt-pdf-modal-title': 'pdfModalTitle', 'txt-pdf-close-btn': 'pdfClose'
+        'txt-pdf-modal-title': 'pdfModalTitle', 'txt-pdf-close-btn': 'pdfClose',
+        'txt-early-card-title': 'earlyCardTitle', 'txt-early-intro': 'earlyIntro',
+        'txt-early-contact': 'earlyContact'
       };
       Object.keys(map).forEach(function(id) {
         var el = document.getElementById(id);
