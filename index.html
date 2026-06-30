@@ -1143,9 +1143,6 @@
   // Ukryj widget zanim Tawk się załaduje — pokaż dopiero po zalogowaniu
   var Tawk_API = Tawk_API || {};
   Tawk_API.onLoad = function() { Tawk_API.hideWidget(); };
-  // Po kliknięciu w dymek od razu zacznij nową rozmowę — pomija ekran
-  // "Thank you for chatting..." / Help Center i nie trzeba niczego szukać.
-  Tawk_API.onChatMaximized = function() { Tawk_API.startChat(); };
   var Tawk_LoadStart = new Date();
   (function(){
   var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
