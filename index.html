@@ -224,6 +224,29 @@
       display: none; line-height: 1.5;
     }
     .config-banner code { background: rgba(0,0,0,0.1); padding: 1px 5px; border-radius: 4px; font-family: monospace; }
+
+    /* ──── Własny przycisk czatu (zastępuje domyślną „chmurkę" Tawk.to) ──── */
+    .chat-launcher {
+      position: fixed; right: 20px; bottom: 20px; z-index: 500;
+      display: none; align-items: center; gap: 10px;
+    }
+    .chat-launcher.visible { display: flex; animation: fadeIn 0.3s ease; }
+    .chat-launcher-bubble {
+      background: var(--white); color: var(--text); font-size: 13px; font-weight: 500;
+      padding: 10px 14px; border-radius: 14px 14px 4px 14px; box-shadow: 0 6px 20px rgba(26, 74, 92, 0.15);
+      border: 1px solid var(--sand2); max-width: 190px; line-height: 1.4; cursor: pointer;
+    }
+    .chat-launcher-btn {
+      width: 54px; height: 54px; border-radius: 50%; background: var(--ocean); color: var(--white);
+      display: flex; align-items: center; justify-content: center; border: none; cursor: pointer;
+      box-shadow: 0 6px 20px rgba(26, 74, 92, 0.25); flex-shrink: 0;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .chat-launcher-btn:hover { background: var(--ocean2); transform: scale(1.06); }
+
+    @media (max-width: 380px) {
+      .chat-launcher-bubble { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -433,6 +456,14 @@
 
   </div>
 
+  <!-- Własny przycisk czatu -->
+  <div id="chat-launcher" class="chat-launcher" onclick="openSupportChat()">
+    <div class="chat-launcher-bubble" id="chat-launcher-text"></div>
+    <button type="button" class="chat-launcher-btn" aria-label="Kontakt">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+    </button>
+  </div>
+
   <!-- Modal PDF -->
   <div id="pdf-modal" class="pdf-modal-overlay">
     <div class="pdf-modal-content">
@@ -534,7 +565,8 @@
         earlyPrice1: "Przy rezerwacji 1 apartamentu koszt tej usługi to 49 €.",
         earlyPrice2: "Przy rezerwacji 2 apartamentów koszt tej usługi to 99 €.",
         earlyPrice3: "Przy rezerwacji 3 apartamentów koszt tej usługi to 149 €.",
-        earlyContact: "Jeśli chcą Państwo skorzystać z tej możliwości, prosimy o wysłanie zapytania na czacie."
+        earlyContact: "Jeśli chcą Państwo skorzystać z tej możliwości, prosimy o wysłanie zapytania na czacie.",
+        chatLauncherText: "Masz pytanie lub problem? Napisz do nas! 💬"
       },
       en: {
         loginIntro: "Please sign in with the e-mail address provided during your booking and your first name.",
@@ -590,7 +622,8 @@
         earlyPrice1: "For a booking of 1 apartment, this service costs 49 €.",
         earlyPrice2: "For a booking of 2 apartments, this service costs 99 €.",
         earlyPrice3: "For a booking of 3 apartments, this service costs 149 €.",
-        earlyContact: "If you would like to take advantage of this option, please send us a request via chat."
+        earlyContact: "If you would like to take advantage of this option, please send us a request via chat.",
+        chatLauncherText: "Have a question or a problem? Chat with us! 💬"
       }
     };
 
@@ -675,6 +708,7 @@
           }
           showDashboard(currentReservation);
           refreshReservationFromServer();
+          tawkSetGuestData(currentReservation);
         } catch(e) {
           localStorage.removeItem("azzurro_reservation");
         }
@@ -1142,7 +1176,7 @@
         'txt-btn-checkout': 'btnCheckout', 'txt-overlay-title': 'overlayTitle',
         'txt-pdf-modal-title': 'pdfModalTitle', 'txt-pdf-close-btn': 'pdfClose',
         'txt-early-card-title': 'earlyCardTitle', 'txt-early-intro': 'earlyIntro',
-        'txt-early-contact': 'earlyContact'
+        'txt-early-contact': 'earlyContact', 'chat-launcher-text': 'chatLauncherText'
       };
       Object.keys(map).forEach(function(id) {
         var el = document.getElementById(id);
@@ -1177,7 +1211,27 @@
   <!--End of Tawk.to Script-->
 
   <script>
-  // Po zalogowaniu — pokaż widget i ustaw dane gościa
+  // ──── Własny przycisk czatu — zastępuje domyślną „chmurkę" Tawk.to ────
+  // Domyślny widget zostaje trwale ukryty (Tawk_API.hideWidget powyżej),
+  // a otwieramy go programowo przez Tawk_API.maximize() z naszego przycisku.
+  function openSupportChat() {
+    try { Tawk_API.maximize(); } catch(e) {}
+  }
+  function showChatLauncher() {
+    var el = document.getElementById('chat-launcher');
+    if (el) el.classList.add('visible');
+  }
+  function hideChatLauncher() {
+    var el = document.getElementById('chat-launcher');
+    if (el) el.classList.remove('visible');
+  }
+  // Gdy gość otworzy/zamknie okno czatu, chowamy/pokazujemy nasz przycisk,
+  // żeby oba nie nachodziły na siebie.
+  Tawk_API.onChatMaximized = function() { hideChatLauncher(); };
+  Tawk_API.onChatMinimized = function() { if (currentReservation) showChatLauncher(); };
+  Tawk_API.onChatHidden = function() { if (currentReservation) showChatLauncher(); };
+
+  // Po zalogowaniu — ustaw dane gościa i pokaż nasz przycisk czatu
   function tawkSetGuestData(res) {
     function setData() {
       try {
@@ -1189,8 +1243,8 @@
           'Wyjazd':     res.dateTo,
           'Apartament': String(res.room)
         }, function(err) { if(err) console.warn('Tawk setAttributes:', err); });
-        Tawk_API.showWidget();
       } catch(e) {}
+      showChatLauncher();
     }
     if (typeof Tawk_API !== 'undefined' && typeof Tawk_API.setAttributes === 'function') {
       setData();
@@ -1200,12 +1254,13 @@
     }
   }
 
-  // Po wylogowaniu — ukryj widget i zakończ sesję czatu
+  // Po wylogowaniu — ukryj przycisk czatu i zakończ sesję
   function tawkLogout() {
     try {
       Tawk_API.endChat();
       Tawk_API.hideWidget();
     } catch(e) {}
+    hideChatLauncher();
   }
   </script>
 </body>
