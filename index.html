@@ -674,11 +674,30 @@
             applyTranslations();
           }
           showDashboard(currentReservation);
+          refreshReservationFromServer();
         } catch(e) {
           localStorage.removeItem("azzurro_reservation");
         }
       }
     });
+
+    // Po wczytaniu z pamięci podręcznej — dociągnij świeże dane z serwera
+    // (statusy płatności/zameldowania mogły się zmienić w arkuszu)
+    function refreshReservationFromServer() {
+      var email = currentReservation && currentReservation.email;
+      var password = localStorage.getItem("azzurro_pw");
+      if (!email || !password) return;
+
+      gasGet({ action: 'loginGuest', email: email, password: password })
+        .then(function(response) {
+          if (response.success) {
+            currentReservation = response.reservation;
+            localStorage.setItem("azzurro_reservation", JSON.stringify(currentReservation));
+            showDashboard(currentReservation);
+          }
+        })
+        .catch(function() { /* brak połączenia — zostają dane z pamięci podręcznej */ });
+    }
 
     function showOverlay(key) {
       document.getElementById('txt-overlay-title').textContent = t('overlayTitle');
@@ -718,6 +737,7 @@
               applyTranslations();
             }
             localStorage.setItem("azzurro_reservation", JSON.stringify(currentReservation));
+            localStorage.setItem("azzurro_pw", password);
             showDashboard(currentReservation);
             tawkSetGuestData(currentReservation);
           } else {
@@ -746,6 +766,7 @@
       tawkLogout();
       localStorage.removeItem("azzurro_reservation");
       localStorage.removeItem("azzurro_pdf_opened");
+      localStorage.removeItem("azzurro_pw");
       currentReservation = null;
       isPdfOpened = false;
       document.getElementById("login-email").value = "";
