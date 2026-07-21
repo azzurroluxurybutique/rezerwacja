@@ -176,7 +176,8 @@
     .pdf-apt-btn-opened { border-color: var(--success); color: var(--success); }
 
     .mini-video-wrap { margin-bottom: 15px; }
-    .mini-video { width: 100%; max-height: 360px; display: block; border-radius: 16px; background: #000; }
+    .mini-video-frame { position: relative; width: 100%; max-width: 280px; margin: 0 auto; aspect-ratio: 2 / 3; border-radius: 16px; overflow: hidden; background: #000; }
+    .mini-video-frame iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; display: block; }
     .mini-video-progress { width: 100%; height: 4px; background: var(--sand2); border-radius: 2px; margin-top: 10px; overflow: hidden; }
     .mini-video-progress-fill { width: 0%; height: 100%; background: var(--ocean); transition: width 0.1s linear; }
     .mini-video-controls { display: flex; align-items: center; justify-content: center; gap: 22px; margin-top: 12px; }
@@ -449,7 +450,9 @@
         </div>
         <div id="codes-video-section" class="hidden">
           <div class="mini-video-wrap">
-            <video id="video-checkin-guide" class="mini-video" playsinline preload="metadata" src="https://drive.google.com/uc?export=download&amp;id=1Guv66k9OkHKAtGJp7sDt-TpJwEky5fuW"></video>
+            <div class="mini-video-frame">
+              <iframe id="video-checkin-guide" src="https://player.vimeo.com/video/1211616241?title=0&amp;byline=0&amp;portrait=0&amp;controls=0&amp;loop=1&amp;dnt=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+            </div>
             <div class="mini-video-progress"><div class="mini-video-progress-fill" id="progress-checkin-guide"></div></div>
             <div class="mini-video-controls">
               <button type="button" class="mini-video-btn" onclick="videoSeek('video-checkin-guide', -5)" aria-label="-5s">
@@ -481,7 +484,9 @@
           <div id="rooms-codes-list"></div>
           <div id="terrace-video-section" class="hidden">
             <div class="mini-video-wrap">
-              <video id="video-terrace-ap1" class="mini-video" playsinline preload="metadata" src="https://drive.google.com/uc?export=download&amp;id=1QJz0GgOGaS1cJENgrKZv1_lhyX82WZr9"></video>
+              <div class="mini-video-frame">
+                <iframe id="video-terrace-ap1" src="https://player.vimeo.com/video/1211615904?title=0&amp;byline=0&amp;portrait=0&amp;controls=0&amp;loop=1&amp;dnt=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+              </div>
               <div class="mini-video-progress"><div class="mini-video-progress-fill" id="progress-terrace-ap1"></div></div>
               <div class="mini-video-controls">
                 <button type="button" class="mini-video-btn" onclick="videoSeek('video-terrace-ap1', -5)" aria-label="-5s">
@@ -561,6 +566,7 @@
     </div>
   </div>
 
+  <script src="https://player.vimeo.com/api/player.js"></script>
   <script>
     // ══════════════════════════════════════════════════════
     // KONFIGURACJA — wklej tutaj URL swojego GAS Web App
@@ -1035,33 +1041,40 @@
       }, { passive: true });
     });
 
-    // ──── Mini-player wideo (start/stop, ±5s) ────
+    // ──── Mini-player wideo Vimeo (start/stop, ±5s, loop, bez dźwięku) ────
     var MINI_PLAYER_PLAY_ICON = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>';
     var MINI_PLAYER_PAUSE_ICON = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+    var vimeoPlayers = {};
 
     function videoTogglePlay(videoId) {
-      var v = document.getElementById(videoId);
-      if (!v) return;
-      if (v.paused || v.ended) v.play(); else v.pause();
+      var player = vimeoPlayers[videoId];
+      if (!player) return;
+      player.getPaused().then(function(paused) {
+        if (paused) player.play(); else player.pause();
+      });
     }
 
     function videoSeek(videoId, delta) {
-      var v = document.getElementById(videoId);
-      if (!v) return;
-      var maxTime = isFinite(v.duration) ? v.duration : (v.currentTime + Math.max(delta, 0));
-      v.currentTime = Math.max(0, Math.min(maxTime, v.currentTime + delta));
+      var player = vimeoPlayers[videoId];
+      if (!player) return;
+      player.getCurrentTime().then(function(time) {
+        player.getDuration().then(function(duration) {
+          player.setCurrentTime(Math.max(0, Math.min(duration, time + delta)));
+        });
+      });
     }
 
     function initMiniPlayer(videoId, playBtnId, progressFillId) {
-      var v = document.getElementById(videoId);
+      var iframe = document.getElementById(videoId);
       var btn = document.getElementById(playBtnId);
       var fill = document.getElementById(progressFillId);
-      if (!v || !btn) return;
-      v.addEventListener('play', function() { btn.innerHTML = MINI_PLAYER_PAUSE_ICON; });
-      v.addEventListener('pause', function() { btn.innerHTML = MINI_PLAYER_PLAY_ICON; });
-      v.addEventListener('ended', function() { btn.innerHTML = MINI_PLAYER_PLAY_ICON; });
-      v.addEventListener('timeupdate', function() {
-        if (fill && v.duration) fill.style.width = ((v.currentTime / v.duration) * 100) + "%";
+      if (!iframe || !btn || typeof Vimeo === 'undefined') return;
+      var player = new Vimeo.Player(iframe);
+      vimeoPlayers[videoId] = player;
+      player.on('play', function() { btn.innerHTML = MINI_PLAYER_PAUSE_ICON; });
+      player.on('pause', function() { btn.innerHTML = MINI_PLAYER_PLAY_ICON; });
+      player.on('timeupdate', function(data) {
+        if (fill) fill.style.width = (data.percent * 100) + "%";
       });
     }
 
