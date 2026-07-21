@@ -172,6 +172,26 @@
     .gallery-arrow-right { right: 10px; }
     .gallery-counter { text-align: center; font-size: 12px; color: var(--muted); margin-top: 8px; }
 
+    .pdf-buttons-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
+    .pdf-apt-btn-opened { border-color: var(--success); color: var(--success); }
+
+    .mini-video-wrap { margin-bottom: 15px; }
+    .mini-video { width: 100%; max-height: 360px; display: block; border-radius: 16px; background: #000; }
+    .mini-video-progress { width: 100%; height: 4px; background: var(--sand2); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+    .mini-video-progress-fill { width: 0%; height: 100%; background: var(--ocean); transition: width 0.1s linear; }
+    .mini-video-controls { display: flex; align-items: center; justify-content: center; gap: 22px; margin-top: 12px; }
+    .mini-video-btn {
+      border: none; background: none; cursor: pointer; color: var(--ocean); display: flex; flex-direction: column;
+      align-items: center; gap: 2px; padding: 4px; transition: opacity 0.2s;
+    }
+    .mini-video-btn:hover { opacity: 0.7; }
+    .mini-video-btn-label { font-size: 10px; font-weight: 600; }
+    .mini-video-btn-play {
+      width: 48px; height: 48px; border-radius: 50%; background: var(--ocean); color: var(--white);
+      justify-content: center; padding: 0;
+    }
+    .mini-video-caption { text-align: center; font-size: 12px; color: var(--muted); margin-top: 8px; font-style: italic; }
+
     .payment-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--sand); }
     .payment-row:last-child { border-bottom: none; }
     .payment-label { display: flex; flex-direction: column; }
@@ -427,11 +447,27 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
           <span id="txt-codes-card-title"></span>
         </div>
+        <div id="codes-video-section" class="hidden">
+          <div class="mini-video-wrap">
+            <video id="video-checkin-guide" class="mini-video" playsinline preload="metadata" src="https://drive.google.com/uc?export=download&amp;id=1Guv66k9OkHKAtGJp7sDt-TpJwEky5fuW"></video>
+            <div class="mini-video-progress"><div class="mini-video-progress-fill" id="progress-checkin-guide"></div></div>
+            <div class="mini-video-controls">
+              <button type="button" class="mini-video-btn" onclick="videoSeek('video-checkin-guide', -5)" aria-label="-5s">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 19 2 12 11 5 11 19"/><polygon points="22 19 13 12 22 5 22 19"/></svg>
+                <span class="mini-video-btn-label">5s</span>
+              </button>
+              <button type="button" class="mini-video-btn mini-video-btn-play" id="playbtn-checkin-guide" onclick="videoTogglePlay('video-checkin-guide')" aria-label="Play/Pause">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+              </button>
+              <button type="button" class="mini-video-btn" onclick="videoSeek('video-checkin-guide', 5)" aria-label="+5s">
+                <span class="mini-video-btn-label">5s</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
         <div id="codes-pdf-section" class="hidden">
-          <button id="btn-open-pdf" class="btn-apple btn-outline" style="margin-bottom: 15px;" onclick="handlePdfOpenClick()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-            <span id="txt-btn-pdf"></span>
-          </button>
+          <div id="codes-pdf-buttons" class="pdf-buttons-list"></div>
         </div>
         <div id="codes-pre-pdf" class="checkin-info-box hidden">
           <p style="font-weight: 500; color: var(--ocean);" id="txt-codes-pre-pdf-title"></p>
@@ -443,6 +479,26 @@
             <div id="txt-codes-unlocked"></div>
           </div>
           <div id="rooms-codes-list"></div>
+          <div id="terrace-video-section" class="hidden">
+            <div class="mini-video-wrap">
+              <video id="video-terrace-ap1" class="mini-video" playsinline preload="metadata" src="https://drive.google.com/uc?export=download&amp;id=1QJz0GgOGaS1cJENgrKZv1_lhyX82WZr9"></video>
+              <div class="mini-video-progress"><div class="mini-video-progress-fill" id="progress-terrace-ap1"></div></div>
+              <div class="mini-video-controls">
+                <button type="button" class="mini-video-btn" onclick="videoSeek('video-terrace-ap1', -5)" aria-label="-5s">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 19 2 12 11 5 11 19"/><polygon points="22 19 13 12 22 5 22 19"/></svg>
+                  <span class="mini-video-btn-label">5s</span>
+                </button>
+                <button type="button" class="mini-video-btn mini-video-btn-play" id="playbtn-terrace-ap1" onclick="videoTogglePlay('video-terrace-ap1')" aria-label="Play/Pause">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+                </button>
+                <button type="button" class="mini-video-btn" onclick="videoSeek('video-terrace-ap1', 5)" aria-label="+5s">
+                  <span class="mini-video-btn-label">5s</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="mini-video-caption" id="txt-terrace-video-caption"></div>
+          </div>
         </div>
       </div>
 
@@ -514,9 +570,12 @@
     // Przykład:
     // var GAS_URL = "https://script.google.com/macros/s/AKfycbxXXXXXXXXX/exec";
 
-    // ──── URL-e PDF ────
-    var PDF_PL = "https://drive.google.com/file/d/16zMWG4Wet0PNFKMCP0k0XW-IDmxzHUfx/preview";
-    var PDF_EN = "https://drive.google.com/file/d/17ILnpee470cY7L9vXN7yrzhUN2jI1fhE/preview";
+    // ──── URL-e PDF instrukcji, jeden plik na apartament ────
+    var ROOM_PDF_MAP = {
+      "1": "https://drive.google.com/file/d/1qCU86yU9xHiNsffLUTPp6pUe47sDwB0a/preview",
+      "2": "https://drive.google.com/file/d/1v4hY7_2XCSXq3weLMs-a4gUZYeqLuQY0/preview",
+      "3": "https://drive.google.com/file/d/1gKqEQfkP96ITxkV2YdolS0FClVFrXbPy/preview"
+    };
 
     // ──── Kody pokoi ────
     var ROOM_CODES_MAP = {
@@ -593,10 +652,10 @@
         checkinDoneTitle: "Zameldowanie zakończone!", checkinDoneDesc: "Dane gości zostały przesłane i zatwierdzone.",
         checkinFormIntro: "Zgodnie z wymaganiami, prosimy o podanie danych wszystkich osób planujących pobyt. Liczba osób w rezerwacji:",
         btnCheckin: "Zatwierdź zameldowanie",
-        codesCardTitle: "Krok 2: Instrukcja i Kody", btnPdf: "Otwórz Instrukcję Apartamentu (PDF)",
+        codesCardTitle: "Krok 2: Instrukcja i Kody", btnPdf: "Otwórz instrukcję (PDF)",
         codesPrePdfTitle: "Instrukcja apartamentu",
-        codesPrePdfDesc: "Przed wyświetleniem kodów wejściowych prosimy o zapoznanie się z instrukcją apartamentu. Kliknij przycisk powyżej, aby ją otworzyć.",
-        codesUnlocked: "Instrukcja apartamentu przeczytana. Kody dostępu odblokowane.",
+        codesPrePdfDesc: "Przed wyświetleniem kodów wejściowych prosimy o zapoznanie się z instrukcją każdego apartamentu. Kliknij przyciski powyżej, aby je otworzyć.",
+        codesUnlocked: "Instrukcje zostały przeczytane. Kody dostępu odblokowane.",
         checkoutCardTitle: "Krok 3: Wymeldowanie",
         checkoutDoneTitle: "Wymeldowanie zakończone!", checkoutDoneDesc: "Dziękujemy za wizytę. Kaucja zostanie zwrócona.",
         checkoutIntro: "Aby dokonać wymeldowania i odzyskać kaucję zabezpieczającą, należy przy wyjściu z mieszkania nagrać krótki film wideo przedstawiający ogólny stan apartamentu i wgrać go poniżej.",
@@ -625,7 +684,8 @@
         earlyPrice3: "Przy rezerwacji 3 apartamentów koszt tej usługi to 149 €.",
         earlyContact: "Jeśli chcą Państwo skorzystać z tej możliwości, prosimy o wysłanie zapytania na czacie.",
         chatLauncherText: "Masz pytanie lub problem? Napisz do nas! 💬",
-        galleryCardTitle: "Zdjęcia Twojego apartamentu"
+        galleryCardTitle: "Zdjęcia Twojego apartamentu",
+        terraceVideoCaption: "Jak wejść na taras"
       },
       en: {
         loginIntro: "Please sign in with the e-mail address provided during your booking and your first name.",
@@ -651,10 +711,10 @@
         checkinDoneTitle: "Check-in completed!", checkinDoneDesc: "Guest details have been submitted and confirmed.",
         checkinFormIntro: "Please provide details for all guests in your reservation. Number of guests:",
         btnCheckin: "Confirm check-in",
-        codesCardTitle: "Step 2: Guide & Access Codes", btnPdf: "Open Apartment Guide (PDF)",
+        codesCardTitle: "Step 2: Guide & Access Codes", btnPdf: "Open guide (PDF)",
         codesPrePdfTitle: "Apartment guide",
-        codesPrePdfDesc: "Please read the apartment guide before your access codes are revealed. Click the button above to open it.",
-        codesUnlocked: "Apartment guide read. Access codes unlocked.",
+        codesPrePdfDesc: "Please read the guide for each apartment before your access codes are revealed. Click the buttons above to open them.",
+        codesUnlocked: "Guides have been read. Access codes unlocked.",
         checkoutCardTitle: "Step 3: Check-out",
         checkoutDoneTitle: "Check-out completed!", checkoutDoneDesc: "Thank you for your stay. The security bond will be refunded.",
         checkoutIntro: "To complete check-out and recover your security bond, please record a short video of the apartment's general condition as you leave and upload it below.",
@@ -683,13 +743,14 @@
         earlyPrice3: "For a booking of 3 apartments, this service costs 149 €.",
         earlyContact: "If you would like to take advantage of this option, please send us a request via chat.",
         chatLauncherText: "Have a question or a problem? Chat with us! 💬",
-        galleryCardTitle: "Photos of your apartment"
+        galleryCardTitle: "Photos of your apartment",
+        terraceVideoCaption: "How to access the terrace"
       }
     };
 
     // ──── Stan globalny ────
     var currentReservation = null;
-    var isPdfOpened = false;
+    var openedPdfRooms = {};
     var selectedVideoBase64 = null;
     var selectedVideoFilename = null;
     var currentLang = 'pl';
@@ -754,7 +815,9 @@
 
       var cached = localStorage.getItem("azzurro_reservation");
       var pdfOpenedCache = localStorage.getItem("azzurro_pdf_opened");
-      if (pdfOpenedCache === "true") isPdfOpened = true;
+      if (pdfOpenedCache) {
+        try { openedPdfRooms = JSON.parse(pdfOpenedCache) || {}; } catch (e) { openedPdfRooms = {}; }
+      }
 
       if (cached) {
         try {
@@ -862,7 +925,7 @@
       localStorage.removeItem("azzurro_pdf_opened");
       localStorage.removeItem("azzurro_pw");
       currentReservation = null;
-      isPdfOpened = false;
+      openedPdfRooms = {};
       document.getElementById("login-email").value = "";
       document.getElementById("login-password").value = "";
       document.getElementById("login-error-box").style.display = "none";
@@ -908,17 +971,22 @@
       updateGallery(res);
     }
 
+    // ──── Wspólny helper: numery apartamentów z rezerwacji ────
+    function getReservationRooms(res) {
+      var roomStr = (res && res.room) ? res.room.toString() : "";
+      var uniqueRooms = {};
+      var match, regex = /[123]/g;
+      while ((match = regex.exec(roomStr)) !== null) uniqueRooms[match[0]] = true;
+      return Object.keys(uniqueRooms).sort();
+    }
+
     // ──── Galeria zdjęć apartamentu ────
     var galleryPhotos = [];
     var galleryIndex = 0;
 
     function updateGallery(res) {
       var card = document.getElementById("card-gallery");
-      var roomStr = (res && res.room) ? res.room.toString() : "";
-      var uniqueRooms = {};
-      var match, regex = /[123]/g;
-      while ((match = regex.exec(roomStr)) !== null) uniqueRooms[match[0]] = true;
-      var roomsFound = Object.keys(uniqueRooms).sort();
+      var roomsFound = getReservationRooms(res);
 
       galleryPhotos = [];
       roomsFound.forEach(function(roomNum) {
@@ -965,6 +1033,41 @@
         if (Math.abs(diff) < 40) return;
         if (diff < 0) galleryNext(); else galleryPrev();
       }, { passive: true });
+    });
+
+    // ──── Mini-player wideo (start/stop, ±5s) ────
+    var MINI_PLAYER_PLAY_ICON = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>';
+    var MINI_PLAYER_PAUSE_ICON = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+
+    function videoTogglePlay(videoId) {
+      var v = document.getElementById(videoId);
+      if (!v) return;
+      if (v.paused || v.ended) v.play(); else v.pause();
+    }
+
+    function videoSeek(videoId, delta) {
+      var v = document.getElementById(videoId);
+      if (!v) return;
+      var maxTime = isFinite(v.duration) ? v.duration : (v.currentTime + Math.max(delta, 0));
+      v.currentTime = Math.max(0, Math.min(maxTime, v.currentTime + delta));
+    }
+
+    function initMiniPlayer(videoId, playBtnId, progressFillId) {
+      var v = document.getElementById(videoId);
+      var btn = document.getElementById(playBtnId);
+      var fill = document.getElementById(progressFillId);
+      if (!v || !btn) return;
+      v.addEventListener('play', function() { btn.innerHTML = MINI_PLAYER_PAUSE_ICON; });
+      v.addEventListener('pause', function() { btn.innerHTML = MINI_PLAYER_PLAY_ICON; });
+      v.addEventListener('ended', function() { btn.innerHTML = MINI_PLAYER_PLAY_ICON; });
+      v.addEventListener('timeupdate', function() {
+        if (fill && v.duration) fill.style.width = ((v.currentTime / v.duration) * 100) + "%";
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      initMiniPlayer('video-checkin-guide', 'playbtn-checkin-guide', 'progress-checkin-guide');
+      initMiniPlayer('video-terrace-ap1', 'playbtn-terrace-ap1', 'progress-terrace-ap1');
     });
 
     function updateEarlySection(res) {
@@ -1014,7 +1117,8 @@
 
       var isPaymentDone = isFullyPaid(res);
       var isCheckinDone = res.isCheckedIn;
-      var isCodesRevealed = isPdfOpened;
+      var reservationRooms = getReservationRooms(res);
+      var isCodesRevealed = reservationRooms.length > 0 && reservationRooms.every(function(r) { return !!openedPdfRooms[r]; });
       var cos = (res.checkOutStatus || "").toLowerCase();
       var isCheckoutDone = (cos === "zakończono" || cos === "welcome_done");
       var bar = document.getElementById("stepper-bar");
@@ -1068,16 +1172,24 @@
 
       // Kody
       var cardCodes = document.getElementById("card-codes");
+      var cvideo = document.getElementById("codes-video-section");
       var cpdf = document.getElementById("codes-pdf-section");
       var cpre = document.getElementById("codes-pre-pdf");
       var cdisp = document.getElementById("codes-display-container");
+      var terraceVideo = document.getElementById("terrace-video-section");
       cardCodes.classList.add("card-locked");
-      [cpdf, cpre, cdisp].forEach(function(el) { el.classList.add("hidden"); });
+      [cvideo, cpdf, cpre, cdisp].forEach(function(el) { el.classList.add("hidden"); });
 
       if (isCheckinDone) {
         cardCodes.classList.remove("card-locked");
+        cvideo.classList.remove("hidden");
         cpdf.classList.remove("hidden");
-        if (isPdfOpened) { cdisp.classList.remove("hidden"); displayRoomCodes(res.room); }
+        renderPdfButtons(reservationRooms);
+        if (isCodesRevealed) {
+          cdisp.classList.remove("hidden");
+          displayRoomCodes(res.room);
+          if (terraceVideo) terraceVideo.classList.toggle("hidden", reservationRooms.indexOf("1") === -1);
+        }
         else { cpre.classList.remove("hidden"); }
       }
 
@@ -1088,7 +1200,7 @@
       cardCheckout.classList.add("card-locked");
       coAlert.classList.add("hidden"); coForm.classList.add("hidden");
 
-      if (isCheckinDone && isPdfOpened) {
+      if (isCheckinDone && isCodesRevealed) {
         cardCheckout.classList.remove("card-locked");
         if (isCheckoutDone) { coAlert.classList.remove("hidden"); }
         else { coForm.classList.remove("hidden"); }
@@ -1170,13 +1282,32 @@
     }
 
     // ──── PDF modal ────
-    function handlePdfOpenClick() {
+    function renderPdfButtons(rooms) {
+      var container = document.getElementById("codes-pdf-buttons");
+      if (!container) return;
+      container.innerHTML = "";
+      rooms.forEach(function(roomNum) {
+        if (!ROOM_PDF_MAP[roomNum]) return;
+        var opened = !!openedPdfRooms[roomNum];
+        container.insertAdjacentHTML('beforeend',
+          '<button type="button" class="btn-apple btn-outline pdf-apt-btn' + (opened ? ' pdf-apt-btn-opened' : '') + '" onclick="handlePdfOpenClick(\'' + roomNum + '\')">' +
+          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>' +
+          '<span>' + t('btnPdf') + ' – ' + t('apt') + ' ' + roomNum + (opened ? ' ✓' : '') + '</span>' +
+          '</button>'
+        );
+      });
+    }
+
+    function handlePdfOpenClick(roomNum) {
+      var url = ROOM_PDF_MAP[roomNum];
+      if (!url) return;
       var modal = document.getElementById("pdf-modal");
-      document.getElementById("pdf-iframe").src = (currentLang === 'en') ? PDF_EN : PDF_PL;
+      document.getElementById("pdf-iframe").src = url;
+      document.getElementById("txt-pdf-modal-title").textContent = t('pdfModalTitle') + ' – ' + t('apt') + ' ' + roomNum;
       modal.style.display = "flex";
-      if (!isPdfOpened) {
-        isPdfOpened = true;
-        localStorage.setItem("azzurro_pdf_opened", "true");
+      if (!openedPdfRooms[roomNum]) {
+        openedPdfRooms[roomNum] = true;
+        localStorage.setItem("azzurro_pdf_opened", JSON.stringify(openedPdfRooms));
         refreshProgressStepper(currentReservation);
       }
     }
@@ -1288,7 +1419,7 @@
         'txt-checkin-payment-required-desc': 'checkinPaymentRequiredDesc',
         'txt-checkin-done-title': 'checkinDoneTitle', 'txt-checkin-done-desc': 'checkinDoneDesc',
         'txt-checkin-form-intro': 'checkinFormIntro', 'txt-btn-checkin': 'btnCheckin',
-        'txt-codes-card-title': 'codesCardTitle', 'txt-btn-pdf': 'btnPdf',
+        'txt-codes-card-title': 'codesCardTitle',
         'txt-codes-pre-pdf-title': 'codesPrePdfTitle', 'txt-codes-pre-pdf-desc': 'codesPrePdfDesc',
         'txt-codes-unlocked': 'codesUnlocked', 'txt-checkout-card-title': 'checkoutCardTitle',
         'txt-checkout-done-title': 'checkoutDoneTitle', 'txt-checkout-done-desc': 'checkoutDoneDesc',
@@ -1297,7 +1428,7 @@
         'txt-pdf-modal-title': 'pdfModalTitle', 'txt-pdf-close-btn': 'pdfClose',
         'txt-early-card-title': 'earlyCardTitle', 'txt-early-intro': 'earlyIntro',
         'txt-early-contact': 'earlyContact', 'chat-launcher-text': 'chatLauncherText',
-        'txt-gallery-card-title': 'galleryCardTitle'
+        'txt-gallery-card-title': 'galleryCardTitle', 'txt-terrace-video-caption': 'terraceVideoCaption'
       };
       Object.keys(map).forEach(function(id) {
         var el = document.getElementById(id);
