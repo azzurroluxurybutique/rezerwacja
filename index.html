@@ -235,9 +235,11 @@
     .damage-map-header { font-size: 13px; font-weight: 600; color: var(--ocean); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
     .damage-map-wrap {
       position: relative; width: 100%; aspect-ratio: 4 / 3; border-radius: 16px;
-      overflow: hidden; background: var(--white); border: 1px solid var(--sand2); cursor: crosshair;
+      overflow: hidden; background: var(--white); border: 1px solid var(--sand2); cursor: zoom-in;
     }
-    .damage-map-wrap.locked { cursor: default; }
+    .damage-map-wrap.locked { cursor: pointer; }
+    .damage-map-wrap-zoom { aspect-ratio: unset; width: 100%; height: 100%; min-height: 300px; cursor: crosshair; }
+    .damage-map-wrap-zoom.locked { cursor: default; }
     .damage-map-image { width: 100%; height: 100%; object-fit: contain; display: block; user-select: none; -webkit-user-drag: none; background: var(--white); }
     .damage-map-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--muted); }
     .damage-pins-layer { position: absolute; inset: 0; pointer-events: none; }
@@ -246,8 +248,11 @@
       border: 3px solid var(--gold); background: var(--sand2) center/cover no-repeat; box-shadow: 0 2px 8px rgba(26,74,92,0.35);
       cursor: pointer; pointer-events: auto; padding: 0;
     }
+    .damage-map-wrap-zoom .damage-pin { width: 38px; height: 38px; }
     .damage-map-hint { font-size: 11px; color: var(--muted); margin-top: 8px; text-align: center; }
     .damage-modal-body { padding: 20px; overflow-y: auto; }
+    .damage-zoom-body { display: flex; flex-direction: column; height: 100%; }
+    .damage-zoom-body .damage-map-wrap-zoom { flex-grow: 1; }
     .damage-view-photo { width: 100%; border-radius: 14px; margin-bottom: 12px; display: block; background: var(--sand); }
 
     .success-alert { background: var(--success-bg); color: var(--success); border: 1px solid rgba(46, 125, 50, 0.2); border-radius: 16px; padding: 16px; font-size: 14px; line-height: 1.5; display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
@@ -602,6 +607,23 @@
     </div>
   </div>
 
+  <!-- Modal: powiększona mapka apartamentu (precyzyjne wskazanie miejsca zniszczenia) -->
+  <div id="damage-zoom-modal" class="pdf-modal-overlay">
+    <div class="pdf-modal-content" style="height: 92%; max-width: 640px;">
+      <div class="pdf-modal-header">
+        <h3 id="txt-damage-zoom-modal-title" style="font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--ocean); font-weight: 600; margin: 0;"></h3>
+        <button class="btn-apple btn-outline" id="txt-damage-zoom-close-btn" style="padding: 8px 16px; font-size: 13px; width: auto; box-shadow: none; border: 2px solid var(--ocean);" onclick="closeDamageZoomModal()"></button>
+      </div>
+      <div class="damage-modal-body damage-zoom-body">
+        <div class="damage-map-wrap damage-map-wrap-zoom" id="damage-zoom-map-wrap">
+          <img class="damage-map-image" id="damage-zoom-map-image" src="" alt="">
+          <div class="damage-pins-layer" id="damage-zoom-pins-layer"></div>
+        </div>
+        <div class="damage-map-hint" id="txt-damage-zoom-hint"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal: dodanie nowego zgłoszenia zniszczenia -->
   <div id="damage-add-modal" class="pdf-modal-overlay">
     <div class="pdf-modal-content" style="height: auto; max-height: 90%; max-width: 420px;">
@@ -657,13 +679,16 @@
 
     // ══════════════════════════════════════════════════════
     // ZGŁASZANIE ZNISZCZEŃ (Krok 3) — godzina graniczna
-    // Godzina (0-23) w DNIU WYJAZDU, do której gość może jeszcze
-    // zgłosić zniszczenie na mapce. Po tej godzinie formularz dodawania
-    // znika (widać tylko wcześniejsze zgłoszenia).
-    // UWAGA: tę samą wartość ustaw też w sht.gs (DAMAGE_REPORT_CUTOFF_HOUR) —
-    // tam jest właściwe zabezpieczenie, tu tylko pokazujemy to gościowi.
+    // Godzina i minuta (0-23 / 0-59) w DNIU WYJAZDU, do której gość może
+    // jeszcze zgłosić zniszczenie na mapce. Po tej godzinie formularz
+    // dodawania znika (widać tylko wcześniejsze zgłoszenia).
+    // Domyślnie: 23:59 (praktycznie cały dzień wyjazdu).
+    // UWAGA: tę samą wartość ustaw też w sht.gs (DAMAGE_REPORT_CUTOFF_HOUR /
+    // DAMAGE_REPORT_CUTOFF_MINUTE) — tam jest właściwe zabezpieczenie,
+    // tu tylko pokazujemy to gościowi.
     // ══════════════════════════════════════════════════════
-    var DAMAGE_REPORT_CUTOFF_HOUR = 11;
+    var DAMAGE_REPORT_CUTOFF_HOUR = 23;
+    var DAMAGE_REPORT_CUTOFF_MINUTE = 59;
 
     // ──── URL-e PDF instrukcji, jeden plik na apartament ────
     var ROOM_PDF_MAP = {
@@ -754,15 +779,16 @@
         damageCardTitle: "Krok 3: Zgłoś ewentualne zniszczenia",
         damageIntro: "Jeśli podczas pobytu zauważysz jakiekolwiek uszkodzenie w apartamencie, zaznacz jego lokalizację na mapce poniżej i dodaj zdjęcie. Sprawdź najpierw zgłoszenia innych gości, aby nie zgłosić tej samej szkody dwa razy.",
         damageMapHint: "Stuknij w miejsce na mapce, aby dodać zdjęcie zniszczenia",
+        damageMapHintZoom: "Stuknij w mapkę, aby ją powiększyć i dokładnie zaznaczyć miejsce",
         damageCutoffTitle: "Czas na zgłaszanie zniszczeń upłynął",
-        damageCutoffDesc: "Nowe zgłoszenia nie są już możliwe (przyjmujemy je do godz. {HOUR}:00 w dniu wyjazdu). Nadal możesz przeglądać wcześniejsze zgłoszenia na mapce.",
+        damageCutoffDesc: "Nowe zgłoszenia nie są już możliwe (przyjmujemy je do godz. {TIME} w dniu wyjazdu). Nadal możesz przeglądać wcześniejsze zgłoszenia na mapce.",
         damageLoadError: "Nie udało się wczytać mapki tego apartamentu.",
         damageNoReports: "Brak zgłoszeń dla tego apartamentu.",
         damageAddModalTitle: "Nowe zgłoszenie zniszczenia",
         damagePhotoPrompt: "Zrób zdjęcie lub wybierz z galerii",
         damageNoteLabel: "Opis (opcjonalnie)", damageNotePh: "np. rysa na blacie stołu",
         btnSubmitDamage: "Dodaj zgłoszenie", damagePhotoRequired: "Najpierw dodaj zdjęcie zniszczenia.",
-        damageSubmitErrorConn: "Błąd zgłoszenia: ", damageSubmitSuccess: "Zgłoszenie zostało dodane. Dziękujemy!",
+        damageSubmitErrorConn: "Błąd zgłoszenia: ", damageSubmitSuccess: "Zgłoszenie zostało wysłane. Po weryfikacji przez obsługę pojawi się na mapce. Dziękujemy!",
         damageViewModalTitle: "Zgłoszenie zniszczenia", damageReportedOn: "Zgłoszono: ",
         damageNoNote: "(brak opisu)",
         apt2: "Apartament",
@@ -828,15 +854,16 @@
         damageCardTitle: "Step 3: Report any damage",
         damageIntro: "If you notice any damage in the apartment during your stay, mark its location on the map below and add a photo. Please check other guests' reports first, so the same damage isn't reported twice.",
         damageMapHint: "Tap a spot on the map to add a damage photo",
+        damageMapHintZoom: "Tap the map to enlarge it and pinpoint the exact spot",
         damageCutoffTitle: "The deadline for reporting damage has passed",
-        damageCutoffDesc: "New reports are no longer possible (accepted until {HOUR}:00 on the day of departure). You can still browse earlier reports on the map.",
+        damageCutoffDesc: "New reports are no longer possible (accepted until {TIME} on the day of departure). You can still browse earlier reports on the map.",
         damageLoadError: "Failed to load the map for this apartment.",
         damageNoReports: "No reports for this apartment yet.",
         damageAddModalTitle: "New damage report",
         damagePhotoPrompt: "Take a photo or choose from gallery",
         damageNoteLabel: "Description (optional)", damageNotePh: "e.g. scratch on the table top",
         btnSubmitDamage: "Add report", damagePhotoRequired: "Please add a photo of the damage first.",
-        damageSubmitErrorConn: "Report error: ", damageSubmitSuccess: "Report added. Thank you!",
+        damageSubmitErrorConn: "Report error: ", damageSubmitSuccess: "Your report has been submitted. It will appear on the map once reviewed by our team. Thank you!",
         damageViewModalTitle: "Damage report", damageReportedOn: "Reported: ",
         damageNoNote: "(no description)",
         apt2: "Apartment",
@@ -1351,7 +1378,8 @@
         }
         if (!isDamageWindowOpen(res)) {
           damageCutoffNotice.classList.remove("hidden");
-          document.getElementById("txt-damage-cutoff-desc").textContent = t('damageCutoffDesc').replace('{HOUR}', DAMAGE_REPORT_CUTOFF_HOUR);
+          var cutoffTimeStr = DAMAGE_REPORT_CUTOFF_HOUR + ":" + (DAMAGE_REPORT_CUTOFF_MINUTE < 10 ? "0" : "") + DAMAGE_REPORT_CUTOFF_MINUTE;
+          document.getElementById("txt-damage-cutoff-desc").textContent = t('damageCutoffDesc').replace('{TIME}', cutoffTimeStr);
         }
         updateDamageMapsLockState(res);
       }
@@ -1573,7 +1601,7 @@
       if (!res || !res.dateTo) return false;
       var dateTo = new Date(res.dateTo + "T00:00:00");
       if (isNaN(dateTo.getTime())) return false;
-      var cutoff = new Date(dateTo.getFullYear(), dateTo.getMonth(), dateTo.getDate(), DAMAGE_REPORT_CUTOFF_HOUR, 0, 0);
+      var cutoff = new Date(dateTo.getFullYear(), dateTo.getMonth(), dateTo.getDate(), DAMAGE_REPORT_CUTOFF_HOUR, DAMAGE_REPORT_CUTOFF_MINUTE, 0);
       return new Date() < cutoff;
     }
 
@@ -1597,12 +1625,12 @@
           '<img class="damage-map-image hidden" id="damage-map-image-' + roomNum + '" src="" alt="">' +
           '<div class="damage-pins-layer" id="damage-pins-layer-' + roomNum + '"></div>' +
           '</div>' +
-          '<div class="damage-map-hint">' + t('damageMapHint') + '</div>' +
+          '<div class="damage-map-hint">' + t('damageMapHintZoom') + '</div>' +
           '</div>'
         );
 
         var wrap = document.getElementById("damage-map-wrap-" + roomNum);
-        wrap.addEventListener("click", function(e) { handleDamageMapClick(e, roomNum, wrap); });
+        wrap.addEventListener("click", function() { openDamageZoomModal(roomNum); });
 
         loadRoomMap(roomNum);
         loadRoomDamages(roomNum);
@@ -1641,35 +1669,70 @@
         .catch(function() { /* zostają zgłoszenia wcześniej wczytane, jeśli są */ });
     }
 
+    function buildDamagePinButton(item) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "damage-pin";
+      btn.style.left = item.x + "%";
+      btn.style.top = item.y + "%";
+      if (item.photoUrl) btn.style.backgroundImage = "url('" + item.photoUrl + "')";
+      btn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        openDamageLightbox(item);
+      });
+      return btn;
+    }
+
     function renderDamagePins(roomNum) {
       var layer = document.getElementById("damage-pins-layer-" + roomNum);
       if (!layer) return;
       layer.innerHTML = "";
-      (damagesByRoom[roomNum] || []).forEach(function(item) {
-        var btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "damage-pin";
-        btn.style.left = item.x + "%";
-        btn.style.top = item.y + "%";
-        if (item.photoUrl) btn.style.backgroundImage = "url('" + item.photoUrl + "')";
-        btn.addEventListener("click", function(e) {
-          e.stopPropagation();
-          openDamageLightbox(item);
-        });
-        layer.appendChild(btn);
-      });
+      (damagesByRoom[roomNum] || []).forEach(function(item) { layer.appendChild(buildDamagePinButton(item)); });
     }
 
-    function handleDamageMapClick(e, roomNum, wrap) {
-      if (wrap.classList.contains("locked")) return;
-      if (!currentReservation || !isDamageWindowOpen(currentReservation)) return;
-      var rect = wrap.getBoundingClientRect();
-      var x = ((e.clientX - rect.left) / rect.width) * 100;
-      var y = ((e.clientY - rect.top) / rect.height) * 100;
-      x = Math.max(2, Math.min(98, x));
-      y = Math.max(2, Math.min(98, y));
-      openDamageAddModal(roomNum, x, y);
+    function renderZoomPins(roomNum) {
+      var layer = document.getElementById("damage-zoom-pins-layer");
+      if (!layer) return;
+      layer.innerHTML = "";
+      (damagesByRoom[roomNum] || []).forEach(function(item) { layer.appendChild(buildDamagePinButton(item)); });
     }
+
+    // ──── Powiększona mapka (precyzyjne wskazanie miejsca) ────
+    var currentZoomRoom = null;
+
+    function openDamageZoomModal(roomNum) {
+      currentZoomRoom = roomNum;
+      var srcImg = document.getElementById("damage-map-image-" + roomNum);
+      document.getElementById("damage-zoom-map-image").src = srcImg ? srcImg.src : "";
+      document.getElementById("txt-damage-zoom-modal-title").textContent = t('apt2') + ' ' + roomNum;
+      var isOpen = !!(currentReservation && isDamageWindowOpen(currentReservation));
+      document.getElementById("txt-damage-zoom-hint").textContent = isOpen ? t('damageMapHint') : t('damageCutoffTitle');
+      document.getElementById("damage-zoom-map-wrap").classList.toggle("locked", !isOpen);
+      renderZoomPins(roomNum);
+      document.getElementById("damage-zoom-modal").style.display = "flex";
+    }
+
+    function closeDamageZoomModal() {
+      document.getElementById("damage-zoom-modal").style.display = "none";
+      currentZoomRoom = null;
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      var zoomWrap = document.getElementById("damage-zoom-map-wrap");
+      if (!zoomWrap) return;
+      zoomWrap.addEventListener("click", function(e) {
+        if (!currentZoomRoom || zoomWrap.classList.contains("locked")) return;
+        if (!currentReservation || !isDamageWindowOpen(currentReservation)) return;
+        var rect = zoomWrap.getBoundingClientRect();
+        var x = ((e.clientX - rect.left) / rect.width) * 100;
+        var y = ((e.clientY - rect.top) / rect.height) * 100;
+        x = Math.max(2, Math.min(98, x));
+        y = Math.max(2, Math.min(98, y));
+        var room = currentZoomRoom;
+        closeDamageZoomModal();
+        openDamageAddModal(room, x, y);
+      });
+    });
 
     function openDamageAddModal(roomNum, x, y) {
       pendingDamageRoom = roomNum;
@@ -1739,9 +1802,8 @@
       }).then(function(response) {
         spinner.style.display = "none";
         if (response.success) {
-          damagesByRoom[room] = damagesByRoom[room] || [];
-          damagesByRoom[room].push(response.damage);
-          renderDamagePins(room);
+          // Zgłoszenie czeka na akceptację obsługi — nie pokazujemy pinezki od razu,
+          // pojawi się na mapce dopiero po zaznaczeniu w arkuszu "Zniszczenia".
           closeDamageAddModal();
           alert(t('damageSubmitSuccess'));
         } else {
@@ -1795,6 +1857,7 @@
         'txt-gallery-card-title': 'galleryCardTitle', 'txt-terrace-video-caption': 'terraceVideoCaption',
         'step-lbl-damage': 'stepDamage', 'txt-damage-card-title': 'damageCardTitle',
         'txt-damage-intro': 'damageIntro', 'txt-damage-cutoff-title': 'damageCutoffTitle',
+        'txt-damage-zoom-close-btn': 'pdfClose',
         'txt-damage-add-close-btn': 'pdfClose', 'txt-damage-photo-prompt': 'damagePhotoPrompt',
         'lbl-damage-note': 'damageNoteLabel', 'txt-btn-submit-damage': 'btnSubmitDamage',
         'txt-damage-view-close-btn': 'pdfClose'
