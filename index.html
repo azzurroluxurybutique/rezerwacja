@@ -238,7 +238,7 @@
       overflow: hidden; background: var(--white); border: 1px solid var(--sand2); cursor: zoom-in;
     }
     .damage-map-wrap.locked { cursor: pointer; }
-    .damage-map-wrap-zoom { aspect-ratio: unset; width: 100%; height: 100%; min-height: 300px; cursor: crosshair; }
+    .damage-map-wrap-zoom { aspect-ratio: unset; width: 100%; min-height: 0; cursor: crosshair; }
     .damage-map-wrap-zoom.locked { cursor: default; }
     .damage-map-image { width: 100%; height: 100%; object-fit: contain; display: block; user-select: none; -webkit-user-drag: none; background: var(--white); }
     .damage-map-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--muted); }
@@ -251,8 +251,8 @@
     .damage-map-wrap-zoom .damage-pin { width: 38px; height: 38px; }
     .damage-map-hint { font-size: 11px; color: var(--muted); margin-top: 8px; text-align: center; }
     .damage-modal-body { padding: 20px; overflow-y: auto; }
-    .damage-zoom-body { display: flex; flex-direction: column; height: 100%; }
-    .damage-zoom-body .damage-map-wrap-zoom { flex-grow: 1; }
+    .damage-zoom-body { display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden; }
+    .damage-zoom-body .damage-map-wrap-zoom { flex: 1 1 auto; min-height: 0; }
     .damage-view-photo { width: 100%; border-radius: 14px; margin-bottom: 12px; display: block; background: var(--sand); }
 
     .success-alert { background: var(--success-bg); color: var(--success); border: 1px solid rgba(46, 125, 50, 0.2); border-radius: 16px; padding: 16px; font-size: 14px; line-height: 1.5; display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
@@ -270,7 +270,7 @@
     .card-locked { opacity: 0.55; pointer-events: none; position: relative; }
     .card-locked::before { content: ''; position: absolute; inset: 0; background: rgba(247, 243, 237, 0.1); z-index: 2; border-radius: 24px; }
 
-    .pdf-modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(26, 74, 92, 0.95); z-index: 3000; display: none; justify-content: center; align-items: center; padding: 15px; animation: fadeIn 0.2s ease; }
+    .pdf-modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh; background: rgba(26, 74, 92, 0.95); z-index: 3000; display: none; justify-content: center; align-items: center; padding: 15px; animation: fadeIn 0.2s ease; }
     .pdf-modal-content { width: 100%; max-width: 900px; height: 90%; background: var(--white); border-radius: 24px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
     .pdf-modal-header { padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--sand2); background: var(--sand); }
     .pdf-modal-body { flex-grow: 1; width: 100%; height: calc(100% - 60px); overflow: auto; -webkit-overflow-scrolling: touch; }
