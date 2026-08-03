@@ -141,7 +141,7 @@
     .stepper-steps { display: flex; justify-content: space-between; position: relative; }
     .stepper-line { position: absolute; top: 15px; left: 0; right: 0; height: 2px; background: var(--sand2); z-index: 1; }
     .stepper-progress-line { position: absolute; top: 15px; left: 0; height: 2px; background: var(--gold); z-index: 2; transition: width 0.4s ease; width: 0%; }
-    .stepper-step { display: flex; flex-direction: column; align-items: center; z-index: 3; width: 25%; }
+    .stepper-step { display: flex; flex-direction: column; align-items: center; z-index: 3; width: 20%; }
     .step-circle {
       width: 30px; height: 30px; border-radius: 50%; background: var(--white);
       border: 2px solid var(--sand2); color: var(--muted); display: flex;
@@ -228,6 +228,31 @@
     .checkout-upload-text { font-size: 13px; font-weight: 500; color: var(--ocean); }
     .checkout-upload-subtext { font-size: 11px; color: var(--muted); margin-top: 4px; }
     .selected-file-info { font-size: 12px; color: var(--success); margin-top: 8px; font-weight: 500; display: none; background: var(--success-bg); padding: 8px; border-radius: 8px; }
+
+    /* ──── Krok 3: mapka zniszczeń ──── */
+    .damage-map-block { margin-bottom: 22px; }
+    .damage-map-block:last-child { margin-bottom: 0; }
+    .damage-map-header { font-size: 13px; font-weight: 600; color: var(--ocean); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .damage-map-wrap {
+      position: relative; width: 100%; aspect-ratio: 4 / 3; border-radius: 16px;
+      overflow: hidden; background: var(--white); border: 1px solid var(--sand2); cursor: crosshair;
+    }
+    .damage-map-wrap.locked { cursor: default; }
+    .damage-map-image { width: 100%; height: 100%; object-fit: contain; display: block; user-select: none; -webkit-user-drag: none; background: var(--white); }
+    .damage-map-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--muted); }
+    .damage-pins-layer { position: absolute; inset: 0; pointer-events: none; }
+    .damage-pin {
+      position: absolute; width: 30px; height: 30px; border-radius: 50%; transform: translate(-50%, -50%);
+      border: 3px solid var(--gold); background: var(--sand2) center/cover no-repeat; box-shadow: 0 2px 8px rgba(26,74,92,0.35);
+      cursor: pointer; pointer-events: auto; padding: 0;
+    }
+    .damage-map-hint { font-size: 11px; color: var(--muted); margin-top: 8px; text-align: center; }
+    .damage-refresh-btn {
+      display: block; margin: 4px auto 0; background: transparent; border: none; color: var(--ocean2);
+      font-family: inherit; font-size: 12px; font-weight: 600; text-decoration: underline; cursor: pointer;
+    }
+    .damage-modal-body { padding: 20px; overflow-y: auto; }
+    .damage-view-photo { width: 100%; border-radius: 14px; margin-bottom: 12px; display: block; background: var(--sand); }
 
     .success-alert { background: var(--success-bg); color: var(--success); border: 1px solid rgba(46, 125, 50, 0.2); border-radius: 16px; padding: 16px; font-size: 14px; line-height: 1.5; display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
     .error-alert { background: var(--error-bg); color: var(--error); border: 1px solid rgba(192, 57, 43, 0.2); border-radius: 16px; padding: 16px; font-size: 14px; line-height: 1.5; display: none; align-items: center; gap: 10px; margin-bottom: 15px; }
@@ -379,7 +404,8 @@
           <div id="step-node-payment" class="stepper-step"><div class="step-circle">1</div><div class="step-label" id="step-lbl-payment"></div></div>
           <div id="step-node-checkin" class="stepper-step"><div class="step-circle">2</div><div class="step-label" id="step-lbl-checkin"></div></div>
           <div id="step-node-codes" class="stepper-step"><div class="step-circle">3</div><div class="step-label" id="step-lbl-codes"></div></div>
-          <div id="step-node-checkout" class="stepper-step"><div class="step-circle">4</div><div class="step-label" id="step-lbl-checkout"></div></div>
+          <div id="step-node-damage" class="stepper-step"><div class="step-circle">4</div><div class="step-label" id="step-lbl-damage"></div></div>
+          <div id="step-node-checkout" class="stepper-step"><div class="step-circle">5</div><div class="step-label" id="step-lbl-checkout"></div></div>
         </div>
       </div>
 
@@ -507,6 +533,21 @@
         </div>
       </div>
 
+      <!-- KARTA ZGŁASZANIA ZNISZCZEŃ -->
+      <div class="card card-locked" id="card-damage">
+        <div class="card-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          <span id="txt-damage-card-title"></span>
+        </div>
+        <p style="font-size: 13px; color: var(--muted); margin-bottom: 15px; line-height: 1.5;" id="txt-damage-intro"></p>
+        <div id="damage-cutoff-notice" class="checkin-info-box warning-box hidden">
+          <p style="font-weight: 500; color: var(--error);" id="txt-damage-cutoff-title"></p>
+          <p style="margin-top: 6px; font-size: 12px; color: var(--text); line-height: 1.4;" id="txt-damage-cutoff-desc"></p>
+        </div>
+        <div id="damage-maps-container"></div>
+        <button type="button" class="damage-refresh-btn" id="txt-btn-refresh-damages" onclick="refreshAllDamagePins()"></button>
+      </div>
+
       <!-- KARTA CHECKOUT -->
       <div class="card card-locked" id="card-checkout">
         <div class="card-title">
@@ -566,6 +607,49 @@
     </div>
   </div>
 
+  <!-- Modal: dodanie nowego zgłoszenia zniszczenia -->
+  <div id="damage-add-modal" class="pdf-modal-overlay">
+    <div class="pdf-modal-content" style="height: auto; max-height: 90%; max-width: 420px;">
+      <div class="pdf-modal-header">
+        <h3 id="txt-damage-add-modal-title" style="font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--ocean); font-weight: 600; margin: 0;"></h3>
+        <button class="btn-apple btn-outline" id="txt-damage-add-close-btn" style="padding: 8px 16px; font-size: 13px; width: auto; box-shadow: none; border: 2px solid var(--ocean);" onclick="closeDamageAddModal()"></button>
+      </div>
+      <div class="damage-modal-body">
+        <div class="checkout-upload-box" onclick="triggerDamagePhotoInput()">
+          <div class="checkout-upload-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </div>
+          <div class="checkout-upload-text" id="txt-damage-photo-prompt"></div>
+          <div id="damage-selected-file-name" class="selected-file-info"></div>
+        </div>
+        <input type="file" id="damage-photo-input" accept="image/*" capture="environment" style="display: none;" onchange="handleDamagePhotoSelection()">
+        <div class="input-group">
+          <label class="input-label" id="lbl-damage-note"></label>
+          <textarea id="damage-note-input" class="input-control" rows="3" style="resize: vertical;"></textarea>
+        </div>
+        <button id="btn-submit-damage" class="btn-apple" disabled onclick="submitDamageReport()">
+          <span id="txt-btn-submit-damage"></span>
+          <div id="damage-spinner" class="spinner-small"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: podgląd istniejącego zgłoszenia zniszczenia -->
+  <div id="damage-view-modal" class="pdf-modal-overlay">
+    <div class="pdf-modal-content" style="height: auto; max-height: 90%; max-width: 420px;">
+      <div class="pdf-modal-header">
+        <h3 id="txt-damage-view-modal-title" style="font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--ocean); font-weight: 600; margin: 0;"></h3>
+        <button class="btn-apple btn-outline" id="txt-damage-view-close-btn" style="padding: 8px 16px; font-size: 13px; width: auto; box-shadow: none; border: 2px solid var(--ocean);" onclick="closeDamageViewModal()"></button>
+      </div>
+      <div class="damage-modal-body">
+        <img id="damage-view-photo" class="damage-view-photo" src="" alt="">
+        <p style="font-size: 12px; color: var(--muted);"><span id="txt-damage-view-date-label"></span><span id="damage-view-date"></span></p>
+        <p style="font-size: 13px; margin-top: 6px; color: var(--text); line-height: 1.4;" id="damage-view-note"></p>
+      </div>
+    </div>
+  </div>
+
   <script src="https://player.vimeo.com/api/player.js"></script>
   <script>
     // ══════════════════════════════════════════════════════
@@ -575,6 +659,16 @@
     var GAS_URL = "https://script.google.com/macros/s/AKfycbzzLn1mtZSEQvW7n5WFrXkXLuQJ1zqssYPXST1U1BrGMqBSFUV52wvy85M_NI217_a1/exec";
     // Przykład:
     // var GAS_URL = "https://script.google.com/macros/s/AKfycbxXXXXXXXXX/exec";
+
+    // ══════════════════════════════════════════════════════
+    // ZGŁASZANIE ZNISZCZEŃ (Krok 3) — godzina graniczna
+    // Godzina (0-23) w DNIU WYJAZDU, do której gość może jeszcze
+    // zgłosić zniszczenie na mapce. Po tej godzinie formularz dodawania
+    // znika (widać tylko wcześniejsze zgłoszenia).
+    // UWAGA: tę samą wartość ustaw też w sht.gs (DAMAGE_REPORT_CUTOFF_HOUR) —
+    // tam jest właściwe zabezpieczenie, tu tylko pokazujemy to gościowi.
+    // ══════════════════════════════════════════════════════
+    var DAMAGE_REPORT_CUTOFF_HOUR = 11;
 
     // ──── URL-e PDF instrukcji, jeden plik na apartament ────
     var ROOM_PDF_MAP = {
@@ -644,7 +738,7 @@
         loginErrorBad: "Nieprawidłowe dane logowania.",
         loginErrorConn: "Błąd połączenia: ",
         logout: "Wyloguj się", dashSubtitle: "Cieszymy się, że jesteś naszym gościem.",
-        stepPayment: "Płatność", stepCheckin: "Zameldowanie", stepCodes: "Kody", stepCheckout: "Wyjazd",
+        stepPayment: "Płatność", stepCheckin: "Zameldowanie", stepCodes: "Kody", stepDamage: "Zniszczenia", stepCheckout: "Wyjazd",
         paymentsTitle: "Szczegóły płatności", depositName: "Zaliczka", depositDesc: "Zapłacona zgodnie z umową",
         restName: "Pozostała kwota", deadlinePrefix: "Termin płatności pozostałej kwoty: ",
         bondName: "Kaucja", bondDesc: "Depozyt zabezpieczający",
@@ -662,7 +756,22 @@
         codesPrePdfTitle: "Instrukcja apartamentu",
         codesPrePdfDesc: "Przed wyświetleniem kodów wejściowych prosimy o zapoznanie się z instrukcją każdego apartamentu. Kliknij przyciski powyżej, aby je otworzyć.",
         codesUnlocked: "Instrukcje zostały przeczytane. Kody dostępu odblokowane.",
-        checkoutCardTitle: "Krok 3: Wymeldowanie",
+        damageCardTitle: "Krok 3: Zgłoś ewentualne zniszczenia",
+        damageIntro: "Jeśli podczas pobytu zauważysz jakiekolwiek uszkodzenie w apartamencie, zaznacz jego lokalizację na mapce poniżej i dodaj zdjęcie. Sprawdź najpierw zgłoszenia innych gości, aby nie zgłosić tej samej szkody dwa razy.",
+        damageMapHint: "Stuknij w miejsce na mapce, aby dodać zdjęcie zniszczenia",
+        damageCutoffTitle: "Czas na zgłaszanie zniszczeń upłynął",
+        damageCutoffDesc: "Nowe zgłoszenia nie są już możliwe (przyjmujemy je do godz. {HOUR}:00 w dniu wyjazdu). Nadal możesz przeglądać wcześniejsze zgłoszenia na mapce.",
+        damageLoadError: "Nie udało się wczytać mapki tego apartamentu.",
+        damageNoReports: "Brak zgłoszeń dla tego apartamentu.",
+        damageAddModalTitle: "Nowe zgłoszenie zniszczenia",
+        damagePhotoPrompt: "Zrób zdjęcie lub wybierz z galerii",
+        damageNoteLabel: "Opis (opcjonalnie)", damageNotePh: "np. rysa na blacie stołu",
+        btnSubmitDamage: "Dodaj zgłoszenie", damagePhotoRequired: "Najpierw dodaj zdjęcie zniszczenia.",
+        damageSubmitErrorConn: "Błąd zgłoszenia: ", damageSubmitSuccess: "Zgłoszenie zostało dodane. Dziękujemy!",
+        damageViewModalTitle: "Zgłoszenie zniszczenia", damageReportedOn: "Zgłoszono: ",
+        damageNoNote: "(brak opisu)", btnRefreshDamages: "Odśwież zgłoszenia innych gości",
+        apt2: "Apartament",
+        checkoutCardTitle: "Krok 4: Wymeldowanie",
         checkoutDoneTitle: "Wymeldowanie zakończone!", checkoutDoneDesc: "Dziękujemy za wizytę. Kaucja zostanie zwrócona.",
         checkoutIntro: "Aby dokonać wymeldowania i odzyskać kaucję zabezpieczającą, należy przy wyjściu z mieszkania nagrać krótki film wideo przedstawiający ogólny stan apartamentu i wgrać go poniżej.",
         uploadBoxText: "Wybierz lub nagraj wideo", uploadSubtext: "Format mp4, mov, avi (maksymalnie 30 MB)",
@@ -703,7 +812,7 @@
         loginErrorBad: "Invalid login credentials.",
         loginErrorConn: "Connection error: ",
         logout: "Sign out", dashSubtitle: "We are delighted to have you as our guest.",
-        stepPayment: "Payment", stepCheckin: "Check-in", stepCodes: "Codes", stepCheckout: "Check-out",
+        stepPayment: "Payment", stepCheckin: "Check-in", stepCodes: "Codes", stepDamage: "Damage", stepCheckout: "Check-out",
         paymentsTitle: "Payment details", depositName: "Deposit", depositDesc: "Paid as per agreement",
         restName: "Remaining balance", deadlinePrefix: "Payment due date: ",
         bondName: "Security bond", bondDesc: "Refundable security deposit",
@@ -721,7 +830,22 @@
         codesPrePdfTitle: "Apartment guide",
         codesPrePdfDesc: "Please read the guide for each apartment before your access codes are revealed. Click the buttons above to open them.",
         codesUnlocked: "Guides have been read. Access codes unlocked.",
-        checkoutCardTitle: "Step 3: Check-out",
+        damageCardTitle: "Step 3: Report any damage",
+        damageIntro: "If you notice any damage in the apartment during your stay, mark its location on the map below and add a photo. Please check other guests' reports first, so the same damage isn't reported twice.",
+        damageMapHint: "Tap a spot on the map to add a damage photo",
+        damageCutoffTitle: "The deadline for reporting damage has passed",
+        damageCutoffDesc: "New reports are no longer possible (accepted until {HOUR}:00 on the day of departure). You can still browse earlier reports on the map.",
+        damageLoadError: "Failed to load the map for this apartment.",
+        damageNoReports: "No reports for this apartment yet.",
+        damageAddModalTitle: "New damage report",
+        damagePhotoPrompt: "Take a photo or choose from gallery",
+        damageNoteLabel: "Description (optional)", damageNotePh: "e.g. scratch on the table top",
+        btnSubmitDamage: "Add report", damagePhotoRequired: "Please add a photo of the damage first.",
+        damageSubmitErrorConn: "Report error: ", damageSubmitSuccess: "Report added. Thank you!",
+        damageViewModalTitle: "Damage report", damageReportedOn: "Reported: ",
+        damageNoNote: "(no description)", btnRefreshDamages: "Refresh other guests' reports",
+        apt2: "Apartment",
+        checkoutCardTitle: "Step 4: Check-out",
         checkoutDoneTitle: "Check-out completed!", checkoutDoneDesc: "Thank you for your stay. The security bond will be refunded.",
         checkoutIntro: "To complete check-out and recover your security bond, please record a short video of the apartment's general condition as you leave and upload it below.",
         uploadBoxText: "Choose or record a video", uploadSubtext: "mp4, mov, avi format (max 30 MB)",
@@ -760,6 +884,15 @@
     var selectedVideoBase64 = null;
     var selectedVideoFilename = null;
     var currentLang = 'pl';
+
+    // ──── Stan globalny: Krok 3 — zgłaszanie zniszczeń ────
+    var damageMapsInitialized = false;
+    var damagesByRoom = {};
+    var pendingDamageRoom = null;
+    var pendingDamageX = null;
+    var pendingDamageY = null;
+    var selectedDamagePhotoBase64 = null;
+    var selectedDamagePhotoFilename = null;
 
     // ──── Helpers ────
     function t(key) {
@@ -932,6 +1065,8 @@
       localStorage.removeItem("azzurro_pw");
       currentReservation = null;
       openedPdfRooms = {};
+      damageMapsInitialized = false;
+      damagesByRoom = {};
       document.getElementById("login-email").value = "";
       document.getElementById("login-password").value = "";
       document.getElementById("login-error-box").style.display = "none";
@@ -1125,7 +1260,7 @@
     }
 
     function refreshProgressStepper(res) {
-      var nodes = ["step-node-payment","step-node-checkin","step-node-codes","step-node-checkout"];
+      var nodes = ["step-node-payment","step-node-checkin","step-node-codes","step-node-damage","step-node-checkout"];
       nodes.forEach(function(id) { document.getElementById(id).classList.remove("active","completed"); });
 
       var isPaymentDone = isFullyPaid(res);
@@ -1141,16 +1276,17 @@
         bar.style.width = "100%";
       } else if (isCodesRevealed) {
         ["step-node-payment","step-node-checkin","step-node-codes"].forEach(function(id) { document.getElementById(id).classList.add("completed"); });
+        document.getElementById("step-node-damage").classList.add("active");
         document.getElementById("step-node-checkout").classList.add("active");
-        bar.style.width = "75%";
+        bar.style.width = "70%";
       } else if (isCheckinDone) {
         ["step-node-payment","step-node-checkin"].forEach(function(id) { document.getElementById(id).classList.add("completed"); });
         document.getElementById("step-node-codes").classList.add("active");
-        bar.style.width = "50%";
+        bar.style.width = "40%";
       } else if (isPaymentDone) {
         document.getElementById("step-node-payment").classList.add("completed");
         document.getElementById("step-node-checkin").classList.add("active");
-        bar.style.width = "25%";
+        bar.style.width = "20%";
       } else {
         document.getElementById("step-node-payment").classList.add("active");
         bar.style.width = "0%";
@@ -1204,6 +1340,25 @@
           if (terraceVideo) terraceVideo.classList.toggle("hidden", reservationRooms.indexOf("1") === -1);
         }
         else { cpre.classList.remove("hidden"); }
+      }
+
+      // Krok 3: zgłaszanie zniszczeń
+      var cardDamage = document.getElementById("card-damage");
+      var damageCutoffNotice = document.getElementById("damage-cutoff-notice");
+      cardDamage.classList.add("card-locked");
+      damageCutoffNotice.classList.add("hidden");
+
+      if (isCheckinDone && isCodesRevealed) {
+        cardDamage.classList.remove("card-locked");
+        if (!damageMapsInitialized) {
+          damageMapsInitialized = true;
+          renderDamageMaps(reservationRooms);
+        }
+        if (!isDamageWindowOpen(res)) {
+          damageCutoffNotice.classList.remove("hidden");
+          document.getElementById("txt-damage-cutoff-desc").textContent = t('damageCutoffDesc').replace('{HOUR}', DAMAGE_REPORT_CUTOFF_HOUR);
+        }
+        updateDamageMapsLockState(res);
       }
 
       // Checkout
@@ -1417,6 +1572,212 @@
         });
     }
 
+    // ──── Krok 3: zgłaszanie zniszczeń na mapce ────
+
+    function isDamageWindowOpen(res) {
+      if (!res || !res.dateTo) return false;
+      var dateTo = new Date(res.dateTo + "T00:00:00");
+      if (isNaN(dateTo.getTime())) return false;
+      var cutoff = new Date(dateTo.getFullYear(), dateTo.getMonth(), dateTo.getDate(), DAMAGE_REPORT_CUTOFF_HOUR, 0, 0);
+      return new Date() < cutoff;
+    }
+
+    function updateDamageMapsLockState(res) {
+      var open = isDamageWindowOpen(res);
+      document.querySelectorAll(".damage-map-wrap").forEach(function(wrap) {
+        wrap.classList.toggle("locked", !open);
+      });
+    }
+
+    function renderDamageMaps(rooms) {
+      var container = document.getElementById("damage-maps-container");
+      container.innerHTML = "";
+      rooms.forEach(function(roomNum) {
+        damagesByRoom[roomNum] = damagesByRoom[roomNum] || [];
+        container.insertAdjacentHTML('beforeend',
+          '<div class="damage-map-block" data-room="' + roomNum + '">' +
+          '<div class="damage-map-header">' + t('apt2') + ' ' + roomNum + '</div>' +
+          '<div class="damage-map-wrap" id="damage-map-wrap-' + roomNum + '">' +
+          '<div class="damage-map-loading" id="damage-map-loading-' + roomNum + '">···</div>' +
+          '<img class="damage-map-image hidden" id="damage-map-image-' + roomNum + '" src="" alt="">' +
+          '<div class="damage-pins-layer" id="damage-pins-layer-' + roomNum + '"></div>' +
+          '</div>' +
+          '<div class="damage-map-hint">' + t('damageMapHint') + '</div>' +
+          '</div>'
+        );
+
+        var wrap = document.getElementById("damage-map-wrap-" + roomNum);
+        wrap.addEventListener("click", function(e) { handleDamageMapClick(e, roomNum, wrap); });
+
+        loadRoomMap(roomNum);
+        loadRoomDamages(roomNum);
+      });
+      if (currentReservation) updateDamageMapsLockState(currentReservation);
+    }
+
+    function loadRoomMap(roomNum) {
+      gasGet({ action: 'getApartmentMap', room: roomNum })
+        .then(function(response) {
+          var loadingEl = document.getElementById("damage-map-loading-" + roomNum);
+          var imgEl = document.getElementById("damage-map-image-" + roomNum);
+          if (!imgEl) return;
+          if (response.success) {
+            imgEl.src = response.mapImageUrl;
+            imgEl.classList.remove("hidden");
+            if (loadingEl) loadingEl.classList.add("hidden");
+          } else if (loadingEl) {
+            loadingEl.textContent = t('damageLoadError');
+          }
+        })
+        .catch(function() {
+          var loadingEl = document.getElementById("damage-map-loading-" + roomNum);
+          if (loadingEl) loadingEl.textContent = t('damageLoadError');
+        });
+    }
+
+    function loadRoomDamages(roomNum) {
+      gasGet({ action: 'listDamages', room: roomNum })
+        .then(function(response) {
+          if (response.success) {
+            damagesByRoom[roomNum] = response.damages || [];
+            renderDamagePins(roomNum);
+          }
+        })
+        .catch(function() { /* zostają zgłoszenia wcześniej wczytane, jeśli są */ });
+    }
+
+    function renderDamagePins(roomNum) {
+      var layer = document.getElementById("damage-pins-layer-" + roomNum);
+      if (!layer) return;
+      layer.innerHTML = "";
+      (damagesByRoom[roomNum] || []).forEach(function(item) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "damage-pin";
+        btn.style.left = item.x + "%";
+        btn.style.top = item.y + "%";
+        if (item.photoUrl) btn.style.backgroundImage = "url('" + item.photoUrl + "')";
+        btn.addEventListener("click", function(e) {
+          e.stopPropagation();
+          openDamageLightbox(item);
+        });
+        layer.appendChild(btn);
+      });
+    }
+
+    function handleDamageMapClick(e, roomNum, wrap) {
+      if (wrap.classList.contains("locked")) return;
+      if (!currentReservation || !isDamageWindowOpen(currentReservation)) return;
+      var rect = wrap.getBoundingClientRect();
+      var x = ((e.clientX - rect.left) / rect.width) * 100;
+      var y = ((e.clientY - rect.top) / rect.height) * 100;
+      x = Math.max(2, Math.min(98, x));
+      y = Math.max(2, Math.min(98, y));
+      openDamageAddModal(roomNum, x, y);
+    }
+
+    function openDamageAddModal(roomNum, x, y) {
+      pendingDamageRoom = roomNum;
+      pendingDamageX = x;
+      pendingDamageY = y;
+      selectedDamagePhotoBase64 = null;
+      selectedDamagePhotoFilename = null;
+      document.getElementById("damage-photo-input").value = "";
+      document.getElementById("txt-damage-photo-prompt").textContent = t('damagePhotoPrompt');
+      document.getElementById("damage-selected-file-name").style.display = "none";
+      document.getElementById("damage-note-input").value = "";
+      document.getElementById("btn-submit-damage").disabled = true;
+      document.getElementById("txt-damage-add-modal-title").textContent = t('damageAddModalTitle') + ' – ' + t('apt2') + ' ' + roomNum;
+      document.getElementById("damage-add-modal").style.display = "flex";
+    }
+
+    function closeDamageAddModal() {
+      document.getElementById("damage-add-modal").style.display = "none";
+    }
+
+    function triggerDamagePhotoInput() { document.getElementById("damage-photo-input").click(); }
+
+    function handleDamagePhotoSelection() {
+      var fileInput = document.getElementById("damage-photo-input");
+      var fileNameDiv = document.getElementById("damage-selected-file-name");
+      var btnSubmit = document.getElementById("btn-submit-damage");
+
+      if (fileInput.files.length === 0) {
+        selectedDamagePhotoBase64 = null; selectedDamagePhotoFilename = null;
+        fileNameDiv.style.display = "none"; btnSubmit.disabled = true; return;
+      }
+
+      var file = fileInput.files[0];
+      fileNameDiv.textContent = t('fileSelected') + file.name + " (" + (file.size/(1024*1024)).toFixed(2) + " MB)";
+      fileNameDiv.style.display = "block";
+
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        selectedDamagePhotoBase64 = e.target.result.split(',')[1];
+        selectedDamagePhotoFilename = file.name;
+        btnSubmit.disabled = false;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function submitDamageReport() {
+      if (!selectedDamagePhotoBase64) { alert(t('damagePhotoRequired')); return; }
+      if (!currentReservation || !pendingDamageRoom) return;
+
+      var btnSubmit = document.getElementById("btn-submit-damage");
+      var spinner = document.getElementById("damage-spinner");
+      btnSubmit.disabled = true;
+      spinner.style.display = "block";
+
+      var note = document.getElementById("damage-note-input").value.trim();
+      var room = pendingDamageRoom;
+
+      gasPost({
+        action: 'reportDamage',
+        reservationId: currentReservation.lp,
+        room: room,
+        x: pendingDamageX,
+        y: pendingDamageY,
+        note: note,
+        base64Data: selectedDamagePhotoBase64,
+        filename: selectedDamagePhotoFilename
+      }).then(function(response) {
+        spinner.style.display = "none";
+        if (response.success) {
+          damagesByRoom[room] = damagesByRoom[room] || [];
+          damagesByRoom[room].push(response.damage);
+          renderDamagePins(room);
+          closeDamageAddModal();
+          alert(t('damageSubmitSuccess'));
+        } else {
+          btnSubmit.disabled = false;
+          alert(t('damageSubmitErrorConn') + (response.message || ''));
+        }
+      }).catch(function(err) {
+        spinner.style.display = "none";
+        btnSubmit.disabled = false;
+        alert(t('damageSubmitErrorConn') + (err.message || err));
+      });
+    }
+
+    function openDamageLightbox(item) {
+      document.getElementById("txt-damage-view-modal-title").textContent = t('damageViewModalTitle');
+      document.getElementById("damage-view-photo").src = item.photoUrl || "";
+      document.getElementById("txt-damage-view-date-label").textContent = t('damageReportedOn');
+      document.getElementById("damage-view-date").textContent = item.timestamp || "";
+      document.getElementById("damage-view-note").textContent = item.note ? item.note : t('damageNoNote');
+      document.getElementById("damage-view-modal").style.display = "flex";
+    }
+
+    function closeDamageViewModal() {
+      document.getElementById("damage-view-modal").style.display = "none";
+    }
+
+    function refreshAllDamagePins() {
+      if (!currentReservation) return;
+      getReservationRooms(currentReservation).forEach(function(roomNum) { loadRoomDamages(roomNum); });
+    }
+
     // ──── applyTranslations ────
     function applyTranslations() {
       var map = {
@@ -1441,7 +1802,13 @@
         'txt-pdf-modal-title': 'pdfModalTitle', 'txt-pdf-close-btn': 'pdfClose',
         'txt-early-card-title': 'earlyCardTitle', 'txt-early-intro': 'earlyIntro',
         'txt-early-contact': 'earlyContact', 'chat-launcher-text': 'chatLauncherText',
-        'txt-gallery-card-title': 'galleryCardTitle', 'txt-terrace-video-caption': 'terraceVideoCaption'
+        'txt-gallery-card-title': 'galleryCardTitle', 'txt-terrace-video-caption': 'terraceVideoCaption',
+        'step-lbl-damage': 'stepDamage', 'txt-damage-card-title': 'damageCardTitle',
+        'txt-damage-intro': 'damageIntro', 'txt-damage-cutoff-title': 'damageCutoffTitle',
+        'txt-btn-refresh-damages': 'btnRefreshDamages',
+        'txt-damage-add-close-btn': 'pdfClose', 'txt-damage-photo-prompt': 'damagePhotoPrompt',
+        'lbl-damage-note': 'damageNoteLabel', 'txt-btn-submit-damage': 'btnSubmitDamage',
+        'txt-damage-view-close-btn': 'pdfClose'
       };
       Object.keys(map).forEach(function(id) {
         var el = document.getElementById(id);
@@ -1452,6 +1819,8 @@
       if (loginEmail) loginEmail.placeholder = t('emailPlaceholder');
       var loginPw = document.getElementById('login-password');
       if (loginPw) loginPw.placeholder = t('passwordPlaceholder');
+      var damageNote = document.getElementById('damage-note-input');
+      if (damageNote) damageNote.placeholder = t('damageNotePh');
 
       var uploadBoxEl = document.getElementById("upload-box-text");
       if (uploadBoxEl && uploadBoxEl.textContent !== t('fileChanged')) uploadBoxEl.textContent = t('uploadBoxText');
