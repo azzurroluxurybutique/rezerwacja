@@ -247,10 +247,6 @@
       cursor: pointer; pointer-events: auto; padding: 0;
     }
     .damage-map-hint { font-size: 11px; color: var(--muted); margin-top: 8px; text-align: center; }
-    .damage-refresh-btn {
-      display: block; margin: 4px auto 0; background: transparent; border: none; color: var(--ocean2);
-      font-family: inherit; font-size: 12px; font-weight: 600; text-decoration: underline; cursor: pointer;
-    }
     .damage-modal-body { padding: 20px; overflow-y: auto; }
     .damage-view-photo { width: 100%; border-radius: 14px; margin-bottom: 12px; display: block; background: var(--sand); }
 
@@ -545,7 +541,6 @@
           <p style="margin-top: 6px; font-size: 12px; color: var(--text); line-height: 1.4;" id="txt-damage-cutoff-desc"></p>
         </div>
         <div id="damage-maps-container"></div>
-        <button type="button" class="damage-refresh-btn" id="txt-btn-refresh-damages" onclick="refreshAllDamagePins()"></button>
       </div>
 
       <!-- KARTA CHECKOUT -->
@@ -769,7 +764,7 @@
         btnSubmitDamage: "Dodaj zgłoszenie", damagePhotoRequired: "Najpierw dodaj zdjęcie zniszczenia.",
         damageSubmitErrorConn: "Błąd zgłoszenia: ", damageSubmitSuccess: "Zgłoszenie zostało dodane. Dziękujemy!",
         damageViewModalTitle: "Zgłoszenie zniszczenia", damageReportedOn: "Zgłoszono: ",
-        damageNoNote: "(brak opisu)", btnRefreshDamages: "Odśwież zgłoszenia innych gości",
+        damageNoNote: "(brak opisu)",
         apt2: "Apartament",
         checkoutCardTitle: "Krok 4: Wymeldowanie",
         checkoutDoneTitle: "Wymeldowanie zakończone!", checkoutDoneDesc: "Dziękujemy za wizytę. Kaucja zostanie zwrócona.",
@@ -843,7 +838,7 @@
         btnSubmitDamage: "Add report", damagePhotoRequired: "Please add a photo of the damage first.",
         damageSubmitErrorConn: "Report error: ", damageSubmitSuccess: "Report added. Thank you!",
         damageViewModalTitle: "Damage report", damageReportedOn: "Reported: ",
-        damageNoNote: "(no description)", btnRefreshDamages: "Refresh other guests' reports",
+        damageNoNote: "(no description)",
         apt2: "Apartment",
         checkoutCardTitle: "Step 4: Check-out",
         checkoutDoneTitle: "Check-out completed!", checkoutDoneDesc: "Thank you for your stay. The security bond will be refunded.",
@@ -1773,11 +1768,6 @@
       document.getElementById("damage-view-modal").style.display = "none";
     }
 
-    function refreshAllDamagePins() {
-      if (!currentReservation) return;
-      getReservationRooms(currentReservation).forEach(function(roomNum) { loadRoomDamages(roomNum); });
-    }
-
     // ──── applyTranslations ────
     function applyTranslations() {
       var map = {
@@ -1805,7 +1795,6 @@
         'txt-gallery-card-title': 'galleryCardTitle', 'txt-terrace-video-caption': 'terraceVideoCaption',
         'step-lbl-damage': 'stepDamage', 'txt-damage-card-title': 'damageCardTitle',
         'txt-damage-intro': 'damageIntro', 'txt-damage-cutoff-title': 'damageCutoffTitle',
-        'txt-btn-refresh-damages': 'btnRefreshDamages',
         'txt-damage-add-close-btn': 'pdfClose', 'txt-damage-photo-prompt': 'damagePhotoPrompt',
         'lbl-damage-note': 'damageNoteLabel', 'txt-btn-submit-damage': 'btnSubmitDamage',
         'txt-damage-view-close-btn': 'pdfClose'
