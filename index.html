@@ -927,11 +927,11 @@
         btn.classList.toggle('active', btn.textContent.indexOf(lang.toUpperCase()) > -1);
       });
       applyTranslations();
-      // Odśwież też treści generowane dynamicznie w JS (przyciski PDF, kody
-      // apartamentów, pola gości, nagłówki mapek zniszczeń) — applyTranslations()
-      // aktualizuje tylko elementy z gotowym id w mapie, a te są budowane
-      // przez insertAdjacentHTML i nie podlegają temu mechanizmowi.
-      if (currentReservation) refreshProgressStepper(currentReservation);
+      // Odśwież też treści generowane dynamicznie w JS (powitanie, daty pobytu,
+      // kwoty/statusy płatności, przyciski PDF, kody apartamentów, pola gości) —
+      // applyTranslations() aktualizuje tylko elementy z gotowym id w mapie,
+      // a te są ustawiane osobno przez showDashboard()/refreshProgressStepper().
+      if (currentReservation) showDashboard(currentReservation);
       document.querySelectorAll('.damage-map-block').forEach(function(block) {
         var roomNum = block.getAttribute('data-room');
         var header = block.querySelector('.damage-map-header');
