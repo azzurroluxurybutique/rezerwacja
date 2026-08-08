@@ -690,13 +690,6 @@
     var DAMAGE_REPORT_CUTOFF_HOUR = 23;
     var DAMAGE_REPORT_CUTOFF_MINUTE = 59;
 
-    // ──── URL-e PDF instrukcji, jeden plik na apartament ────
-    var ROOM_PDF_MAP = {
-      "1": "https://drive.google.com/file/d/1qCU86yU9xHiNsffLUTPp6pUe47sDwB0a/preview",
-      "2": "https://drive.google.com/file/d/1v4hY7_2XCSXq3weLMs-a4gUZYeqLuQY0/preview",
-      "3": "https://drive.google.com/file/d/1gKqEQfkP96ITxkV2YdolS0FClVFrXbPy/preview"
-    };
-
     // ──── Opisy pokoi (kody drzwi/skrytki pobierane z serwera dopiero po zalogowaniu, patrz displayRoomCodes) ────
     var ROOM_DESC_MAP = {
       "1": {
@@ -1487,7 +1480,7 @@
       if (!container) return;
       container.innerHTML = "";
       rooms.forEach(function(roomNum) {
-        if (!ROOM_PDF_MAP[roomNum]) return;
+        if (!ROOM_DESC_MAP[roomNum]) return;
         var opened = !!openedPdfRooms[roomNum];
         container.insertAdjacentHTML('beforeend',
           '<button type="button" class="btn-apple btn-outline pdf-apt-btn' + (opened ? ' pdf-apt-btn-opened' : '') + '" onclick="handlePdfOpenClick(\'' + roomNum + '\')">' +
@@ -1499,17 +1492,33 @@
     }
 
     function handlePdfOpenClick(roomNum) {
-      var url = ROOM_PDF_MAP[roomNum];
-      if (!url) return;
-      var modal = document.getElementById("pdf-modal");
-      document.getElementById("pdf-iframe").src = url;
-      document.getElementById("txt-pdf-modal-title").textContent = t('pdfModalTitle') + ' – ' + t('apt') + ' ' + roomNum;
-      modal.style.display = "flex";
-      if (!openedPdfRooms[roomNum]) {
-        openedPdfRooms[roomNum] = true;
-        localStorage.setItem("azzurro_pdf_opened", JSON.stringify(openedPdfRooms));
-        refreshProgressStepper(currentReservation);
-      }
+      var email = currentReservation && currentReservation.email;
+      var password = localStorage.getItem("azzurro_pw");
+      if (!email || !password) return;
+
+      showOverlay('overlayText');
+
+      gasGet({ action: 'getRoomPdfUrl', email: email, password: password, room: roomNum })
+        .then(function(response) {
+          hideOverlay();
+          if (!response.success || !response.url) {
+            alert(response.message || t('noRoomsError'));
+            return;
+          }
+          var modal = document.getElementById("pdf-modal");
+          document.getElementById("pdf-iframe").src = response.url;
+          document.getElementById("txt-pdf-modal-title").textContent = t('pdfModalTitle') + ' – ' + t('apt') + ' ' + roomNum;
+          modal.style.display = "flex";
+          if (!openedPdfRooms[roomNum]) {
+            openedPdfRooms[roomNum] = true;
+            localStorage.setItem("azzurro_pdf_opened", JSON.stringify(openedPdfRooms));
+            refreshProgressStepper(currentReservation);
+          }
+        })
+        .catch(function() {
+          hideOverlay();
+          alert(t('noRoomsError'));
+        });
     }
 
     function closePdfModal() {
