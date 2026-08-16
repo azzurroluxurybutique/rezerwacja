@@ -26,7 +26,7 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-    html { touch-action: manipulation; }
+    html { touch-action: pan-x pan-y; }
 
     body {
       font-family: 'DM Sans', sans-serif;
@@ -36,7 +36,7 @@
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      touch-action: manipulation;
+      touch-action: pan-x pan-y;
     }
 
     .app-container {
@@ -390,6 +390,11 @@
                 <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Do</label>
                 <input type="date" id="shop-date-to" class="input-control" style="width:100%; min-width:0; padding:12px 8px; font-size:14px;">
               </div>
+            </div>
+
+            <div id="shop-hour-row" class="hidden" style="margin-top:10px;">
+              <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Godzina odbioru i zwrotu</label>
+              <select id="shop-hour" class="input-control" style="width:100%;"></select>
             </div>
 
             <div id="shop-cart-summary" class="hidden checkin-info-box" style="margin-top:12px;">
@@ -1682,6 +1687,16 @@
     var shopTemplateUrl = "";
     var shopCustomFields = [];
 
+    (function populateShopHours() {
+      var select = document.getElementById("shop-hour");
+      var options = [];
+      for (var h = 0; h < 24; h++) {
+        var label = (h < 10 ? '0' + h : h) + ':00';
+        options.push('<option value="' + h + '"' + (h === 8 ? ' selected' : '') + '>' + label + '</option>');
+      }
+      select.innerHTML = options.join('');
+    })();
+
     var SHOP_STATUS_LABELS = {
       awaiting_contract: 'Do podpisania',
       awaiting_payment: 'Oczekuje przelewu',
@@ -1732,7 +1747,9 @@
       if (checked) shopSelected[id] = true; else delete shopSelected[id];
       var row = document.getElementById('shop-item-row-' + id);
       if (row) row.style.borderColor = checked ? 'var(--gold)' : 'var(--sand2)';
-      document.getElementById("shop-dates-row").classList.toggle("hidden", Object.keys(shopSelected).length === 0);
+      var anySelected = Object.keys(shopSelected).length > 0;
+      document.getElementById("shop-dates-row").classList.toggle("hidden", !anySelected);
+      document.getElementById("shop-hour-row").classList.toggle("hidden", !anySelected);
       shopRecalc();
     }
 
@@ -1777,12 +1794,13 @@
       var ids = Object.keys(shopSelected);
       var dateFrom = document.getElementById("shop-date-from").value;
       var dateTo = document.getElementById("shop-date-to").value;
+      var hour = document.getElementById("shop-hour").value;
       if (!ids.length || !dateFrom || !dateTo) return;
 
       var btn = document.getElementById("shop-next-btn");
       btn.disabled = true;
 
-      gasPost({ action: 'createBooking', email: email, password: password, itemIds: ids, dateFrom: dateFrom, dateTo: dateTo })
+      gasPost({ action: 'createBooking', email: email, password: password, itemIds: ids, dateFrom: dateFrom, dateTo: dateTo, hour: hour })
         .then(function(response) {
           btn.disabled = false;
           if (!response.success) {
@@ -1791,9 +1809,11 @@
           }
           shopBookingId = response.bookingId;
           shopIsSameDay = response.isSameDay;
+          var hourLabel = (response.hour < 10 ? '0' + response.hour : response.hour) + ':00';
           document.getElementById("shop-contract-name").textContent = currentReservation.fullName;
           document.getElementById("shop-contract-items").textContent = response.itemNames;
-          document.getElementById("shop-contract-dates").textContent = response.dateFrom + ' – ' + response.dateTo;
+          document.getElementById("shop-contract-dates").textContent =
+            response.dateFrom + ' – ' + response.dateTo + ' (godz. ' + hourLabel + ')';
           document.getElementById("shop-contract-price").textContent = response.price + ' zł';
           document.getElementById("shop-contract-deposit-row").classList.toggle("hidden", !response.depositAmount);
           document.getElementById("shop-contract-deposit").textContent = (response.depositAmount || 0) + ' zł';
