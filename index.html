@@ -389,9 +389,15 @@
               </div>
             </div>
 
-            <div id="shop-cart-summary" class="hidden checkin-info-box" style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
-              <span id="shop-cart-text" style="font-size:12px;color:var(--muted);"></span>
-              <span id="shop-cart-total" style="font-size:16px;font-weight:700;color:var(--ocean);"></span>
+            <div id="shop-cart-summary" class="hidden checkin-info-box" style="margin-top:12px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span id="shop-cart-text" style="font-size:12px;color:var(--muted);"></span>
+                <span id="shop-cart-total" style="font-size:16px;font-weight:700;color:var(--ocean);"></span>
+              </div>
+              <div id="shop-cart-deposit-row" class="hidden" style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+                <span style="font-size:12px;color:var(--muted);">Kaucja (zwrotna)</span>
+                <span id="shop-cart-deposit" style="font-size:13px;font-weight:600;"></span>
+              </div>
             </div>
 
             <button type="button" class="btn-apple hidden" id="shop-next-btn" style="margin-top:12px;" onclick="shopGoToContract()">
@@ -405,7 +411,13 @@
               <div class="code-row"><div class="code-label">Przedmiot</div><div style="font-size:13px;text-align:right;" id="shop-contract-items"></div></div>
               <div class="code-row"><div class="code-label">Okres</div><div style="font-size:13px;" id="shop-contract-dates"></div></div>
               <div class="code-row"><div class="code-label">Kwota</div><div style="font-size:13px;font-weight:700;" id="shop-contract-price"></div></div>
+              <div class="code-row hidden" id="shop-contract-deposit-row"><div class="code-label">Kaucja</div><div style="font-size:13px;font-weight:700;" id="shop-contract-deposit"></div></div>
             </div>
+
+            <a href="#" target="_blank" rel="noopener" id="shop-contract-template-link" class="hidden" style="display:block;font-size:12px;color:var(--ocean);text-decoration:underline;margin-bottom:14px;">Przeczytaj wzór umowy</a>
+
+            <div id="shop-custom-fields"></div>
+
             <p style="font-size:12px;color:var(--muted);margin-bottom:6px;" id="txt-shop-sign-hint">Podpisz palcem poniżej</p>
             <canvas id="shop-sig-pad" width="356" height="140" style="width:100%;height:140px;background:var(--white);border:1.5px dashed var(--sand2);border-radius:14px;touch-action:none;margin-bottom:8px;"></canvas>
             <div style="display:flex; gap:8px; margin-bottom:14px;">
@@ -1664,6 +1676,8 @@
     var shopIsSameDay = false;
     var shopSigCanvas, shopSigCtx, shopSigDrawing = false;
     var shopProofFile = null;
+    var shopTemplateUrl = "";
+    var shopCustomFields = [];
 
     var SHOP_STATUS_LABELS = {
       awaiting_contract: 'Do podpisania',
@@ -1684,6 +1698,8 @@
         .then(function(response) {
           if (!response.success || !response.enabled || !response.items.length) return;
           shopItems = response.items;
+          shopTemplateUrl = response.templateUrl || "";
+          shopCustomFields = response.customFields || [];
           document.getElementById("card-shop").classList.remove("hidden");
           renderShopItems();
           loadShopBookings();
@@ -1702,6 +1718,7 @@
           '<div style="flex:1;">' +
             '<div style="font-weight:600;font-size:14px;">' + item.name + '</div>' +
             '<div style="font-size:12px;color:var(--muted);">' + (item.description || '') + '</div>' +
+            (item.depositAmount ? '<div style="font-size:11px;color:var(--muted);">Kaucja: ' + item.depositAmount + ' zł</div>' : '') +
           '</div>' +
           '<input type="checkbox" onchange="shopToggleItem(\'' + item.id + '\', this.checked)" style="width:20px;height:20px;flex-shrink:0;">' +
         '</label>';
@@ -1733,16 +1750,20 @@
       var to = new Date(toVal);
       var days = Math.max(1, Math.round((to - from) / 86400000));
       var total = 0;
+      var totalDeposit = 0;
       ids.forEach(function(id) {
         var item = shopItems.filter(function(it) { return String(it.id) === String(id); })[0];
         if (!item) return;
         var rate = days <= 1 ? item.price1Day : (days <= 6 ? item.priceShortDay : item.priceLongDay);
         total += rate * days;
+        totalDeposit += item.depositAmount || 0;
       });
 
       document.getElementById("shop-cart-text").textContent =
         'Wybrano: ' + ids.length + ' przedmiot' + (ids.length === 1 ? '' : 'y') + ' · ' + days + ' dni';
       document.getElementById("shop-cart-total").textContent = total + ' zł';
+      document.getElementById("shop-cart-deposit-row").classList.toggle("hidden", totalDeposit === 0);
+      document.getElementById("shop-cart-deposit").textContent = totalDeposit + ' zł';
       summary.classList.remove("hidden");
       nextBtn.classList.remove("hidden");
     }
@@ -1771,11 +1792,46 @@
           document.getElementById("shop-contract-items").textContent = response.itemNames;
           document.getElementById("shop-contract-dates").textContent = response.dateFrom + ' – ' + response.dateTo;
           document.getElementById("shop-contract-price").textContent = response.price + ' zł';
+          document.getElementById("shop-contract-deposit-row").classList.toggle("hidden", !response.depositAmount);
+          document.getElementById("shop-contract-deposit").textContent = (response.depositAmount || 0) + ' zł';
+
+          var templateLink = document.getElementById("shop-contract-template-link");
+          if (shopTemplateUrl) {
+            templateLink.href = shopTemplateUrl;
+            templateLink.classList.remove("hidden");
+          } else {
+            templateLink.classList.add("hidden");
+          }
+
+          renderShopCustomFields();
+
           document.getElementById("shop-step-browse").classList.add("hidden");
           document.getElementById("shop-step-contract").classList.remove("hidden");
           shopInitSignaturePad();
         })
         .catch(function() { btn.disabled = false; alert("Błąd połączenia."); });
+    }
+
+    function renderShopCustomFields() {
+      var container = document.getElementById("shop-custom-fields");
+      if (!shopCustomFields.length) {
+        container.innerHTML = "";
+        return;
+      }
+      container.innerHTML = shopCustomFields.map(function(f, i) {
+        return '<div style="margin-bottom:10px;">' +
+          '<label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">' + f.label + '</label>' +
+          '<input type="text" class="input-control shop-custom-field-input" data-placeholder="' + f.placeholder.replace(/"/g, '&quot;') + '" style="width:100%;">' +
+        '</div>';
+      }).join('');
+    }
+
+    function shopCollectCustomValues() {
+      var values = {};
+      document.querySelectorAll('.shop-custom-field-input').forEach(function(input) {
+        values[input.dataset.placeholder] = input.value.trim();
+      });
+      return values;
     }
 
     function shopInitSignaturePad() {
@@ -1811,11 +1867,18 @@
       var email = currentReservation && currentReservation.email;
       var password = localStorage.getItem("azzurro_pw");
       var signatureBase64 = shopSigCanvas.toDataURL("image/png");
+      var customValues = shopCollectCustomValues();
+
+      var missing = shopCustomFields.filter(function(f) { return !customValues[f.placeholder]; });
+      if (missing.length) {
+        alert("Uzupełnij: " + missing.map(function(f) { return f.label; }).join(", "));
+        return;
+      }
 
       var btn = document.getElementById("shop-sign-btn");
       btn.disabled = true;
 
-      gasPost({ action: 'signContract', email: email, password: password, bookingId: shopBookingId, signatureBase64: signatureBase64 })
+      gasPost({ action: 'signContract', email: email, password: password, bookingId: shopBookingId, signatureBase64: signatureBase64, customValues: customValues })
         .then(function(response) {
           btn.disabled = false;
           if (!response.success) {
