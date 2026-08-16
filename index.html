@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Azzurro Luxury Boutique - Portal Gościa</title>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
   
@@ -26,6 +26,8 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
+    html { touch-action: manipulation; }
+
     body {
       font-family: 'DM Sans', sans-serif;
       background: var(--sand);
@@ -34,6 +36,7 @@
       display: flex;
       justify-content: center;
       align-items: flex-start;
+      touch-action: manipulation;
     }
 
     .app-container {
@@ -379,13 +382,13 @@
             <div id="shop-items-list"></div>
 
             <div id="shop-dates-row" class="hidden" style="display:flex; gap:10px; margin-top:14px;">
-              <div style="flex:1;">
+              <div style="flex:1; min-width:0;">
                 <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Od</label>
-                <input type="date" id="shop-date-from" class="input-control" style="width:100%;">
+                <input type="date" id="shop-date-from" class="input-control" style="width:100%; min-width:0; padding:12px 8px; font-size:14px;">
               </div>
-              <div style="flex:1;">
+              <div style="flex:1; min-width:0;">
                 <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Do</label>
-                <input type="date" id="shop-date-to" class="input-control" style="width:100%;">
+                <input type="date" id="shop-date-to" class="input-control" style="width:100%; min-width:0; padding:12px 8px; font-size:14px;">
               </div>
             </div>
 
