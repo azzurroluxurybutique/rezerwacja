@@ -1891,7 +1891,7 @@
             'Prosimy o przelew: <strong>' + (response.bankDetails || '') + '</strong>, kwota <strong>' + response.price + ' zł</strong>.' +
             (response.isSameDay
               ? ' Przy szybkiej rezerwacji prosimy dołączyć potwierdzenie przelewu poniżej.'
-              : ' Kod do odbioru pojawi się tutaj (w sekcji "Twoje rezerwacje") w dniu rozpoczęcia wynajmu.');
+              : ' Po zaksięgowaniu przelewu i zatwierdzeniu przez obsługę kod do odbioru pojawi się tutaj (w sekcji "Twoje rezerwacje") w dniu rozpoczęcia wynajmu.');
           document.getElementById("shop-proof-section").classList.toggle("hidden", !response.isSameDay);
           shopSelected = {};
           loadShopBookings();
