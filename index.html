@@ -367,28 +367,6 @@
         </div>
       </div>
 
-      <!-- PACZKOMAT — niezależne od statusu rezerwacji, dostępne od razu po zalogowaniu -->
-      <div style="padding: 0 20px; margin-top: 20px;">
-        <div class="card" id="card-paczkomat">
-          <div class="card-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
-            <span id="txt-paczkomat-title">Paczkomat</span>
-          </div>
-          <div id="paczkomat-idle">
-            <button type="button" class="btn-apple" id="btn-paczkomat-request" onclick="requestPaczkomatCode()">
-              <span id="txt-paczkomat-request-btn">Poproszę o kod</span>
-            </button>
-          </div>
-          <div id="paczkomat-pending" class="hidden" style="font-size: 13px; color: var(--muted);">
-            <span id="txt-paczkomat-pending">Przygotowujemy kod, to potrwa chwilę…</span>
-          </div>
-          <div id="paczkomat-ready" class="hidden">
-            <div class="code-row"><div class="code-label">📦 <span id="txt-paczkomat-code-label">Kod</span></div><div class="code-value" id="paczkomat-code-value"></div></div>
-            <div class="code-instruction" id="txt-paczkomat-instruction">Wpisz ten kod na ekranie przy paczkomacie — tam też zobaczysz numer szafki.</div>
-          </div>
-        </div>
-      </div>
-
       <!-- WYPOŻYCZALNIA — niezależna od statusu rezerwacji, tylko gdy włączona w dashboardzie Pi -->
       <div style="padding: 0 20px; margin-top: 20px;">
         <div class="card hidden" id="card-shop">
@@ -1207,7 +1185,6 @@
       document.getElementById("stay-dates").textContent = datesStr;
 
       // Niezależne od statusu rezerwacji/zameldowania — dostępne od razu po zalogowaniu.
-      displayPaczkomatCode();
       loadShop();
 
       document.getElementById("val-deposit-amount").textContent = res.depositAmount + " €";
@@ -1678,86 +1655,6 @@
         .catch(function() {
           container.innerHTML = '<p style="font-size:13px;color:var(--error);">' + t('noRoomsError') + '</p>';
         });
-    }
-
-    // ──── Paczkomat ────
-    var paczkomatPollTimer = null;
-
-    function displayPaczkomatCode() {
-      var email = currentReservation && currentReservation.email;
-      var password = localStorage.getItem("azzurro_pw");
-      if (!email || !password) return;
-
-      gasGet({ action: 'getPaczkomatCodeStatus', email: email, password: password })
-        .then(function(response) {
-          if (!response.success) return;
-          if (response.status === 'pending') {
-            showPaczkomatPending();
-            schedulePaczkomatPoll();
-          } else if (response.status === 'ready') {
-            showPaczkomatReady(response.code);
-          }
-          // status === 'none' -> zostaje ekran z przyciskiem "Poproszę o kod"
-        })
-        .catch(function() {});
-    }
-
-    function requestPaczkomatCode() {
-      var email = currentReservation && currentReservation.email;
-      var password = localStorage.getItem("azzurro_pw");
-      if (!email || !password) return;
-
-      var btn = document.getElementById("btn-paczkomat-request");
-      btn.disabled = true;
-
-      gasGet({ action: 'requestPaczkomatCode', email: email, password: password })
-        .then(function(response) {
-          btn.disabled = false;
-          if (!response.success) {
-            alert(response.message || "Nie udało się poprosić o kod.");
-            return;
-          }
-          if (response.status === 'ready') {
-            showPaczkomatReady(response.code);
-          } else {
-            showPaczkomatPending();
-            schedulePaczkomatPoll();
-          }
-        })
-        .catch(function() { btn.disabled = false; });
-    }
-
-    function schedulePaczkomatPoll() {
-      clearTimeout(paczkomatPollTimer);
-      paczkomatPollTimer = setTimeout(function() {
-        var email = currentReservation && currentReservation.email;
-        var password = localStorage.getItem("azzurro_pw");
-        if (!email || !password) return;
-
-        gasGet({ action: 'getPaczkomatCodeStatus', email: email, password: password })
-          .then(function(response) {
-            if (response.success && response.status === 'ready') {
-              showPaczkomatReady(response.code);
-            } else {
-              schedulePaczkomatPoll();
-            }
-          })
-          .catch(function() { schedulePaczkomatPoll(); });
-      }, 5000);
-    }
-
-    function showPaczkomatPending() {
-      document.getElementById("paczkomat-idle").classList.add("hidden");
-      document.getElementById("paczkomat-ready").classList.add("hidden");
-      document.getElementById("paczkomat-pending").classList.remove("hidden");
-    }
-
-    function showPaczkomatReady(code) {
-      clearTimeout(paczkomatPollTimer);
-      document.getElementById("paczkomat-idle").classList.add("hidden");
-      document.getElementById("paczkomat-pending").classList.add("hidden");
-      document.getElementById("paczkomat-ready").classList.remove("hidden");
-      document.getElementById("paczkomat-code-value").textContent = code;
     }
 
     // ──── Wypożyczalnia ────
