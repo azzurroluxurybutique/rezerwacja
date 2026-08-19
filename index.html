@@ -354,7 +354,8 @@
       width: 20px; height: 20px; border-radius: 50%; background: var(--ocean); color: var(--white);
       font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .a2hs-step .glyph { font-size: 15px; flex-shrink: 0; }
+    .a2hs-step .glyph { flex-shrink: 0; display: inline-flex; align-items: center; color: var(--ocean); }
+    .a2hs-step .glyph svg { display: block; }
     .a2hs-actions { display: flex; gap: 10px; }
     .a2hs-btn {
       flex: 1; border: none; border-radius: 14px; padding: 11px 14px; font-family: inherit;
@@ -2505,13 +2506,20 @@
       wrap.className = 'a2hs-banner';
       wrap.id = 'a2hsBanner';
 
+      var ICON_SHARE = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v6a2 2 0 002 2h10a2 2 0 002-2v-6"/></svg>';
+      var ICON_MORE = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 10l4 4 4-4"/></svg>';
+      var ICON_ADD_SQUARE = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M12 8v8M8 12h8"/></svg>';
+      var ICON_CHECK = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg>';
+      var ICON_DOTS = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg>';
+
       var stepsHtml = '';
       if (mode === 'ios') {
         stepsHtml =
           '<div class="a2hs-steps">' +
-            '<div class="a2hs-step"><span class="num">1</span><span class="glyph">⬆️</span>' + t('Stuknij ikonę <b>Udostępnij</b> na dolnym pasku Safari', 'Tap the <b>Share</b> icon in Safari\'s toolbar') + '</div>' +
-            '<div class="a2hs-step"><span class="num">2</span><span class="glyph">➕</span>' + t('Wybierz <b>„Dodaj do ekranu początkowego”</b>', 'Choose <b>“Add to Home Screen”</b>') + '</div>' +
-            '<div class="a2hs-step"><span class="num">3</span><span class="glyph">✅</span>' + t('Stuknij <b>„Dodaj”</b> w prawym górnym rogu', 'Tap <b>“Add”</b> in the top-right corner') + '</div>' +
+            '<div class="a2hs-step"><span class="num">1</span><span class="glyph">' + ICON_SHARE + '</span>' + t('Stuknij ikonę <b>Udostępnij</b> na dolnym pasku Safari', 'Tap the <b>Share</b> icon in Safari\'s toolbar') + '</div>' +
+            '<div class="a2hs-step"><span class="num">2</span><span class="glyph">' + ICON_MORE + '</span>' + t('Stuknij <b>„Pokaż więcej”</b>', 'Tap <b>“Show More”</b>') + '</div>' +
+            '<div class="a2hs-step"><span class="num">3</span><span class="glyph">' + ICON_ADD_SQUARE + '</span>' + t('Wybierz <b>„Do ekranu głównego”</b>', 'Choose <b>“Add to Home Screen”</b>') + '</div>' +
+            '<div class="a2hs-step"><span class="num">4</span><span class="glyph">' + ICON_CHECK + '</span>' + t('Stuknij <b>„Dodaj”</b> w prawym górnym rogu', 'Tap <b>“Add”</b> in the top-right corner') + '</div>' +
           '</div>' +
           '<div class="a2hs-actions"><button type="button" class="a2hs-btn ghost" id="a2hsDismiss">' + t('Może później', 'Maybe later') + '</button></div>';
       } else if (mode === 'android-native') {
@@ -2523,8 +2531,8 @@
       } else {
         stepsHtml =
           '<div class="a2hs-steps">' +
-            '<div class="a2hs-step"><span class="num">1</span><span class="glyph">⋮</span>' + t('Otwórz <b>menu przeglądarki</b> (trzy kropki w rogu)', 'Open the <b>browser menu</b> (three dots)') + '</div>' +
-            '<div class="a2hs-step"><span class="num">2</span><span class="glyph">➕</span>' + t('Wybierz <b>„Dodaj do ekranu głównego”</b>', 'Choose <b>“Add to Home screen”</b>') + '</div>' +
+            '<div class="a2hs-step"><span class="num">1</span><span class="glyph">' + ICON_DOTS + '</span>' + t('Otwórz <b>menu przeglądarki</b> (trzy kropki w rogu)', 'Open the <b>browser menu</b> (three dots)') + '</div>' +
+            '<div class="a2hs-step"><span class="num">2</span><span class="glyph">' + ICON_ADD_SQUARE + '</span>' + t('Wybierz <b>„Dodaj do ekranu głównego”</b>', 'Choose <b>“Add to Home screen”</b>') + '</div>' +
           '</div>' +
           '<div class="a2hs-actions"><button type="button" class="a2hs-btn ghost" id="a2hsDismiss">' + t('Może później', 'Maybe later') + '</button></div>';
       }
