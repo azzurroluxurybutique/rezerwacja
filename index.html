@@ -299,29 +299,6 @@
     }
     .config-banner code { background: rgba(0,0,0,0.1); padding: 1px 5px; border-radius: 4px; font-family: monospace; }
 
-    /* ──── Własny przycisk czatu (zastępuje domyślną „chmurkę" Tawk.to) ──── */
-    .chat-launcher {
-      position: fixed; right: 20px; bottom: 20px; z-index: 500;
-      display: none; align-items: center; gap: 10px;
-    }
-    .chat-launcher.visible { display: flex; animation: fadeIn 0.3s ease; }
-    .chat-launcher-bubble {
-      background: var(--white); color: var(--text); font-size: 13px; font-weight: 500;
-      padding: 10px 14px; border-radius: 14px 14px 4px 14px; box-shadow: 0 6px 20px rgba(26, 74, 92, 0.15);
-      border: 1px solid var(--sand2); max-width: 190px; line-height: 1.4; cursor: pointer;
-    }
-    .chat-launcher-btn {
-      width: 54px; height: 54px; border-radius: 50%; background: var(--ocean); color: var(--white);
-      display: flex; align-items: center; justify-content: center; border: none; cursor: pointer;
-      box-shadow: 0 6px 20px rgba(26, 74, 92, 0.25); flex-shrink: 0;
-      transition: transform 0.2s ease, background 0.2s ease;
-    }
-    .chat-launcher-btn:hover { background: var(--ocean2); transform: scale(1.06); }
-
-    @media (max-width: 380px) {
-      .chat-launcher-bubble { display: none; }
-    }
-
     /* ──── Baner „Dodaj do ekranu głównego" ──── */
     .a2hs-banner {
       position: fixed; left: 0; right: 0; bottom: 0; z-index: 900;
@@ -737,14 +714,6 @@
 
   </div>
 
-  <!-- Własny przycisk czatu -->
-  <div id="chat-launcher" class="chat-launcher" onclick="openSupportChat()">
-    <div class="chat-launcher-bubble" id="chat-launcher-text"></div>
-    <button type="button" class="chat-launcher-btn" aria-label="Kontakt">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-    </button>
-  </div>
-
   <!-- Modal PDF -->
   <div id="pdf-modal" class="pdf-modal-overlay">
     <div class="pdf-modal-content">
@@ -959,8 +928,7 @@
         earlyPrice1: "Przy rezerwacji 1 apartamentu koszt tej usługi to 49 €.",
         earlyPrice2: "Przy rezerwacji 2 apartamentów koszt tej usługi to 99 €.",
         earlyPrice3: "Przy rezerwacji 3 apartamentów koszt tej usługi to 149 €.",
-        earlyContact: "Jeśli chcą Państwo skorzystać z tej możliwości, prosimy o wysłanie zapytania na czacie.",
-        chatLauncherText: "Masz pytanie lub problem? Napisz do nas! 💬",
+        earlyContact: "Jeśli chcą Państwo skorzystać z tej możliwości, prosimy o kontakt.",
         galleryCardTitle: "Zdjęcia Twojego apartamentu",
         terraceVideoCaption: "Jak wejść na taras"
       },
@@ -1034,8 +1002,7 @@
         earlyPrice1: "For a booking of 1 apartment, this service costs 49 €.",
         earlyPrice2: "For a booking of 2 apartments, this service costs 99 €.",
         earlyPrice3: "For a booking of 3 apartments, this service costs 149 €.",
-        earlyContact: "If you would like to take advantage of this option, please send us a request via chat.",
-        chatLauncherText: "Have a question or a problem? Chat with us! 💬",
+        earlyContact: "If you would like to take advantage of this option, please contact us.",
         galleryCardTitle: "Photos of your apartment",
         terraceVideoCaption: "How to access the terrace"
       }
@@ -1145,7 +1112,6 @@
           }
           showDashboard(currentReservation);
           refreshReservationFromServer();
-          tawkSetGuestData(currentReservation);
         } catch(e) {
           localStorage.removeItem("azzurro_reservation");
         }
@@ -1210,7 +1176,6 @@
             localStorage.setItem("azzurro_reservation", JSON.stringify(currentReservation));
             localStorage.setItem("azzurro_pw", password);
             showDashboard(currentReservation);
-            tawkSetGuestData(currentReservation);
           } else {
             errorBox.textContent = response.message || t('loginErrorBad');
             errorBox.style.display = "flex";
@@ -1234,7 +1199,6 @@
 
     // ──── Logout ────
     function handleLogout() {
-      tawkLogout();
       localStorage.removeItem("azzurro_reservation");
       localStorage.removeItem("azzurro_pdf_opened");
       localStorage.removeItem("azzurro_pw");
@@ -2361,7 +2325,7 @@
         'txt-btn-checkout': 'btnCheckout', 'txt-overlay-title': 'overlayTitle',
         'txt-pdf-modal-title': 'pdfModalTitle', 'txt-pdf-close-btn': 'pdfClose',
         'txt-early-card-title': 'earlyCardTitle', 'txt-early-intro': 'earlyIntro',
-        'txt-early-contact': 'earlyContact', 'chat-launcher-text': 'chatLauncherText',
+        'txt-early-contact': 'earlyContact',
         'txt-gallery-card-title': 'galleryCardTitle', 'txt-terrace-video-caption': 'terraceVideoCaption',
         'step-lbl-damage': 'stepDamage', 'txt-damage-card-title': 'damageCardTitle',
         'txt-damage-intro': 'damageIntro', 'txt-damage-cutoff-title': 'damageCutoffTitle',
@@ -2385,77 +2349,6 @@
       var uploadBoxEl = document.getElementById("upload-box-text");
       if (uploadBoxEl && uploadBoxEl.textContent !== t('fileChanged')) uploadBoxEl.textContent = t('uploadBoxText');
     }
-  </script>
-
-  <!--Start of Tawk.to Script-->
-  <script type="text/javascript">
-  // Ukryj widget zanim Tawk się załaduje — pokaż dopiero po zalogowaniu
-  var Tawk_API = Tawk_API || {};
-  Tawk_API.onLoad = function() { Tawk_API.hideWidget(); };
-  var Tawk_LoadStart = new Date();
-  (function(){
-  var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-  s1.async=true;
-  s1.src='https://embed.tawk.to/6a3bc01637254e1d4584b7a7/1jrsmcm9j';
-  s1.charset='UTF-8';
-  s1.setAttribute('crossorigin','*');
-  s0.parentNode.insertBefore(s1,s0);
-  })();
-  </script>
-  <!--End of Tawk.to Script-->
-
-  <script>
-  // ──── Własny przycisk czatu — zastępuje domyślną „chmurkę" Tawk.to ────
-  // Domyślny widget zostaje trwale ukryty (Tawk_API.hideWidget powyżej),
-  // a otwieramy go programowo przez Tawk_API.maximize() z naszego przycisku.
-  function openSupportChat() {
-    try { Tawk_API.maximize(); } catch(e) {}
-  }
-  function showChatLauncher() {
-    var el = document.getElementById('chat-launcher');
-    if (el) el.classList.add('visible');
-  }
-  function hideChatLauncher() {
-    var el = document.getElementById('chat-launcher');
-    if (el) el.classList.remove('visible');
-  }
-  // Gdy gość otworzy/zamknie okno czatu, chowamy/pokazujemy nasz przycisk,
-  // żeby oba nie nachodziły na siebie.
-  Tawk_API.onChatMaximized = function() { hideChatLauncher(); };
-  Tawk_API.onChatMinimized = function() { if (currentReservation) showChatLauncher(); };
-  Tawk_API.onChatHidden = function() { if (currentReservation) showChatLauncher(); };
-
-  // Po zalogowaniu — ustaw dane gościa i pokaż nasz przycisk czatu
-  function tawkSetGuestData(res) {
-    function setData() {
-      try {
-        Tawk_API.setAttributes({
-          name:  res.fullName,
-          email: res.email,
-          'Rezerwacja': String(res.lp),
-          'Przyjazd':   res.dateFrom,
-          'Wyjazd':     res.dateTo,
-          'Apartament': String(res.room)
-        }, function(err) { if(err) console.warn('Tawk setAttributes:', err); });
-      } catch(e) {}
-      showChatLauncher();
-    }
-    if (typeof Tawk_API !== 'undefined' && typeof Tawk_API.setAttributes === 'function') {
-      setData();
-    } else {
-      var _prev = Tawk_API.onLoad;
-      Tawk_API.onLoad = function() { if(_prev) _prev(); setData(); };
-    }
-  }
-
-  // Po wylogowaniu — ukryj przycisk czatu i zakończ sesję
-  function tawkLogout() {
-    try {
-      Tawk_API.endChat();
-      Tawk_API.hideWidget();
-    } catch(e) {}
-    hideChatLauncher();
-  }
   </script>
 
   <!-- ──── PWA: instalacja na ekranie głównym (Android/iOS) ──── -->
