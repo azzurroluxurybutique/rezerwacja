@@ -4,6 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Azzurro Luxury Boutique - Portal Gościa</title>
+
+  <!-- PWA: instalacja na ekranie głównym -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a4a5c">
+  <link rel="icon" type="image/png" href="icons/favicon-32.png">
+
+  <!-- iOS: pełnoekranowy tryb "jak aplikacja" po dodaniu do ekranu głównego -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Azzurro">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
   
   <style>
@@ -309,6 +321,49 @@
     @media (max-width: 380px) {
       .chat-launcher-bubble { display: none; }
     }
+
+    /* ──── Baner „Dodaj do ekranu głównego" ──── */
+    .a2hs-banner {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 900;
+      display: flex; justify-content: center;
+      transform: translateY(120%); transition: transform 0.35s ease;
+      pointer-events: none;
+    }
+    .a2hs-banner.visible { transform: translateY(0); pointer-events: auto; }
+    .a2hs-card {
+      width: 100%; max-width: 480px; margin: 0 10px 10px;
+      background: var(--white); border-radius: 20px;
+      box-shadow: 0 -6px 30px rgba(26, 74, 92, 0.22), 0 6px 20px rgba(26, 74, 92, 0.12);
+      border: 1px solid var(--sand2);
+      padding: 16px; display: flex; flex-direction: column; gap: 12px;
+    }
+    .a2hs-row { display: flex; align-items: center; gap: 12px; }
+    .a2hs-icon { width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0; box-shadow: 0 3px 10px rgba(26,74,92,0.2); }
+    .a2hs-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .a2hs-subtitle { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+    .a2hs-close {
+      margin-left: auto; background: none; border: none; color: var(--muted);
+      font-size: 20px; line-height: 1; cursor: pointer; padding: 4px; flex-shrink: 0;
+    }
+    .a2hs-steps { display: flex; flex-direction: column; gap: 8px; }
+    .a2hs-step {
+      display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text);
+      background: var(--sand); border-radius: 12px; padding: 9px 12px; line-height: 1.4;
+    }
+    .a2hs-step .num {
+      width: 20px; height: 20px; border-radius: 50%; background: var(--ocean); color: var(--white);
+      font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .a2hs-step .glyph { font-size: 15px; flex-shrink: 0; }
+    .a2hs-actions { display: flex; gap: 10px; }
+    .a2hs-btn {
+      flex: 1; border: none; border-radius: 14px; padding: 11px 14px; font-family: inherit;
+      font-size: 13.5px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+    }
+    .a2hs-btn.primary { background: var(--ocean); color: var(--white); }
+    .a2hs-btn.primary:hover { background: var(--ocean2); }
+    .a2hs-btn.ghost { background: transparent; color: var(--muted); }
+    .a2hs-btn.ghost:hover { color: var(--text); }
   </style>
 </head>
 <body>
@@ -2400,6 +2455,130 @@
     } catch(e) {}
     hideChatLauncher();
   }
+  </script>
+
+  <!-- ──── PWA: instalacja na ekranie głównym (Android/iOS) ──── -->
+  <script>
+  (function() {
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('sw.js').catch(function(err) {
+          console.warn('SW registration failed:', err);
+        });
+      });
+    }
+
+    var DISMISS_KEY = 'azzurro_a2hs_dismissed_until';
+    var DISMISS_DAYS = 14;
+
+    var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    var ua = navigator.userAgent || '';
+    var isAndroid = /android/i.test(ua);
+    // iPadOS 13+ reports as "MacIntel" with no "iPad" in the UA — only trust that
+    // fallback when the UA didn't already identify the device as Android.
+    var isIOS = !isAndroid && (/iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
+
+    if (isStandalone || (!isIOS && !isAndroid)) return;
+
+    var dismissedUntil = parseInt(localStorage.getItem(DISMISS_KEY) || '0', 10);
+    if (Date.now() < dismissedUntil) return;
+
+    var deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      deferredPrompt = e;
+      showBanner('android-native');
+    });
+
+    function t(pl, en) {
+      return (typeof currentLang !== 'undefined' && currentLang === 'en') ? en : pl;
+    }
+
+    function dismiss() {
+      localStorage.setItem(DISMISS_KEY, String(Date.now() + DISMISS_DAYS * 24 * 60 * 60 * 1000));
+      var el = document.getElementById('a2hsBanner');
+      if (el) el.classList.remove('visible');
+    }
+
+    function buildBanner(mode) {
+      var wrap = document.createElement('div');
+      wrap.className = 'a2hs-banner';
+      wrap.id = 'a2hsBanner';
+
+      var stepsHtml = '';
+      if (mode === 'ios') {
+        stepsHtml =
+          '<div class="a2hs-steps">' +
+            '<div class="a2hs-step"><span class="num">1</span><span class="glyph">⬆️</span>' + t('Stuknij ikonę <b>Udostępnij</b> na dolnym pasku Safari', 'Tap the <b>Share</b> icon in Safari\'s toolbar') + '</div>' +
+            '<div class="a2hs-step"><span class="num">2</span><span class="glyph">➕</span>' + t('Wybierz <b>„Dodaj do ekranu początkowego”</b>', 'Choose <b>“Add to Home Screen”</b>') + '</div>' +
+            '<div class="a2hs-step"><span class="num">3</span><span class="glyph">✅</span>' + t('Stuknij <b>„Dodaj”</b> w prawym górnym rogu', 'Tap <b>“Add”</b> in the top-right corner') + '</div>' +
+          '</div>' +
+          '<div class="a2hs-actions"><button type="button" class="a2hs-btn ghost" id="a2hsDismiss">' + t('Może później', 'Maybe later') + '</button></div>';
+      } else if (mode === 'android-native') {
+        stepsHtml =
+          '<div class="a2hs-actions">' +
+            '<button type="button" class="a2hs-btn ghost" id="a2hsDismiss">' + t('Może później', 'Maybe later') + '</button>' +
+            '<button type="button" class="a2hs-btn primary" id="a2hsInstall">' + t('Zainstaluj', 'Install') + '</button>' +
+          '</div>';
+      } else {
+        stepsHtml =
+          '<div class="a2hs-steps">' +
+            '<div class="a2hs-step"><span class="num">1</span><span class="glyph">⋮</span>' + t('Otwórz <b>menu przeglądarki</b> (trzy kropki w rogu)', 'Open the <b>browser menu</b> (three dots)') + '</div>' +
+            '<div class="a2hs-step"><span class="num">2</span><span class="glyph">➕</span>' + t('Wybierz <b>„Dodaj do ekranu głównego”</b>', 'Choose <b>“Add to Home screen”</b>') + '</div>' +
+          '</div>' +
+          '<div class="a2hs-actions"><button type="button" class="a2hs-btn ghost" id="a2hsDismiss">' + t('Może później', 'Maybe later') + '</button></div>';
+      }
+
+      wrap.innerHTML =
+        '<div class="a2hs-card">' +
+          '<div class="a2hs-row">' +
+            '<img class="a2hs-icon" src="icons/icon-192.png" alt="Azzurro">' +
+            '<div>' +
+              '<div class="a2hs-title">' + t('Dodaj Portal Gościa do ekranu głównego', 'Add the Guest Portal to your Home Screen') + '</div>' +
+              '<div class="a2hs-subtitle">' + t('Korzystaj z portalu jak z aplikacji — jednym stuknięciem, bez przeglądarki.', 'Use the portal like an app — one tap, no browser bar.') + '</div>' +
+            '</div>' +
+            '<button type="button" class="a2hs-close" id="a2hsClose" aria-label="Zamknij">×</button>' +
+          '</div>' +
+          stepsHtml +
+        '</div>';
+
+      document.body.appendChild(wrap);
+
+      var closeBtn = document.getElementById('a2hsClose');
+      var dismissBtn = document.getElementById('a2hsDismiss');
+      var installBtn = document.getElementById('a2hsInstall');
+      if (closeBtn) closeBtn.addEventListener('click', dismiss);
+      if (dismissBtn) dismissBtn.addEventListener('click', dismiss);
+      if (installBtn) {
+        installBtn.addEventListener('click', function() {
+          if (!deferredPrompt) return;
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.finally(function() {
+            deferredPrompt = null;
+            dismiss();
+          });
+        });
+      }
+
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() { wrap.classList.add('visible'); });
+      });
+    }
+
+    function showBanner(mode) {
+      if (document.getElementById('a2hsBanner')) return;
+      buildBanner(mode);
+    }
+
+    setTimeout(function() {
+      if (document.getElementById('a2hsBanner')) return;
+      if (isIOS) {
+        showBanner('ios');
+      } else if (isAndroid && !deferredPrompt) {
+        showBanner('android-fallback');
+      }
+    }, 2500);
+  })();
   </script>
 </body>
 </html>
