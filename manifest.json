@@ -1,0 +1,33 @@
+{
+  "name": "Azzurro Luxury Boutique - Portal Gościa",
+  "short_name": "Azzurro",
+  "description": "Portal Gościa Azzurro Luxury Boutique",
+  "start_url": "./dashek.html",
+  "scope": "./",
+  "id": "./dashek.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "lang": "pl",
+  "background_color": "#f7f3ed",
+  "theme_color": "#1a4a5c",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
